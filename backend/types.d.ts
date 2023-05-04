@@ -1,4 +1,9 @@
 import { Types } from 'mongoose';
+import { Request } from 'express';
+
+export interface IRequestWithUserPayload extends Request {
+  user: IResponseUserDto;
+}
 
 export interface IUser {
   firstName: string;
