@@ -1,17 +1,22 @@
 import cors from 'cors';
 import express from 'express';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import config from './config';
+import usersRouter from './routes/users';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static('public'));
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send({ message: 'It works!' });
 });
+
+app.use('/api/users', usersRouter);
 
 const run = async () => {
   await mongoose.connect(config.db);
