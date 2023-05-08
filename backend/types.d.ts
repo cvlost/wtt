@@ -35,3 +35,7 @@ export interface IToken {
   user: Types.ObjectId;
   refreshToken: string;
 }
+
+export interface IError {
+  error: string;
+}

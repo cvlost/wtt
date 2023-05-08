@@ -1,31 +1,22 @@
 import { RequestHandler } from 'express';
-import { validateAccessToken } from '../services/jwtService';
+import { validateAccessToken } from '../services/jwt-service';
 import { IRequestWithUserPayload } from '../types';
+import { Unauthorized } from '../errors/errors';
 
 const auth: RequestHandler = (expressReq, res, next) => {
   const req = expressReq as IRequestWithUserPayload;
 
-  try {
-    const authorizationHeader = req.headers.authorization;
-    if (!authorizationHeader) {
-      return res.status(401).send({ message: 'Unauthorized' });
-    }
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) throw new Unauthorized();
 
-    const accessToken = authorizationHeader.split(' ')[1];
-    if (!accessToken) {
-      return res.status(401).send({ message: 'Unauthorized' });
-    }
+  const accessToken = authorizationHeader.split(' ')[1];
+  if (!accessToken) throw new Unauthorized();
 
-    const userPayload = validateAccessToken(accessToken);
-    if (!userPayload) {
-      return res.status(401).send({ message: 'Unauthorized' });
-    }
+  const userPayload = validateAccessToken(accessToken);
+  if (!userPayload) throw new Unauthorized();
 
-    req.user = userPayload;
-    return next();
-  } catch (e) {
-    return res.status(401).send({ message: 'Unauthorized' });
-  }
+  req.user = userPayload;
+  return next();
 };
 
 export default auth;
