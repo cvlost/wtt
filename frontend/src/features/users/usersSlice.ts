@@ -1,24 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { GlobalError, IUser, ValidationError } from '../../types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { GlobalError, ILoginResponse, IUser, ValidationError } from '../../types';
 import { RootState } from '../../app/store';
-import { login, register } from './usersThunks';
+import { checkAuth, login, register } from './usersThunks';
 
 interface UsersState {
   user: IUser | null;
-  accessToken: string;
+  accessToken: string | null;
   registerLoading: boolean;
   registerError: ValidationError | null;
   loginLoading: boolean;
   loginError: GlobalError | null;
+  checkAuthLoading: boolean;
+  authorized: boolean;
 }
 
 const initialState: UsersState = {
   user: null,
-  accessToken: '',
+  accessToken: null,
   registerError: null,
   registerLoading: false,
   loginError: null,
   loginLoading: false,
+  checkAuthLoading: false,
+  authorized: false,
 };
 
 const usersSlice = createSlice({
@@ -29,8 +33,15 @@ const usersSlice = createSlice({
       state.registerError = null;
       state.loginError = null;
     },
+    setUser: (state, { payload }: PayloadAction<ILoginResponse>) => {
+      state.user = payload.user;
+      state.accessToken = payload.accessToken;
+      state.authorized = false;
+    },
     unsetUser: (state) => {
       state.user = null;
+      state.accessToken = null;
+      state.authorized = false;
     },
   },
   extraReducers: (builder) => {
@@ -51,22 +62,41 @@ const usersSlice = createSlice({
       state.loginError = null;
       state.loginLoading = true;
     });
-    builder.addCase(login.fulfilled, (state, { payload: user }) => {
-      state.user = user;
+    builder.addCase(login.fulfilled, (state, { payload }) => {
+      state.user = payload.user;
+      state.accessToken = payload.accessToken;
       state.loginLoading = false;
+      state.authorized = true;
     });
     builder.addCase(login.rejected, (state, { payload: error }) => {
       state.loginError = error || null;
       state.loginLoading = false;
+      state.authorized = false;
+    });
+
+    builder.addCase(checkAuth.pending, (state) => {
+      state.checkAuthLoading = true;
+    });
+    builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
+      state.user = payload.user;
+      state.accessToken = payload.accessToken;
+      state.checkAuthLoading = false;
+      state.authorized = true;
+    });
+    builder.addCase(checkAuth.rejected, (state) => {
+      state.checkAuthLoading = false;
+      state.authorized = false;
     });
   },
 });
 
 export const usersReducer = usersSlice.reducer;
-export const { unsetUser, resetAuthErrors } = usersSlice.actions;
+export const { unsetUser, resetAuthErrors, setUser } = usersSlice.actions;
 
 export const selectUser = (state: RootState) => state.users.user;
 export const selectRegisterLoading = (state: RootState) => state.users.registerLoading;
 export const selectRegisterError = (state: RootState) => state.users.registerError;
 export const selectLoginLoading = (state: RootState) => state.users.loginLoading;
 export const selectLoginError = (state: RootState) => state.users.loginError;
+export const selectUserToken = (state: RootState) => state.users.accessToken;
+export const selectUserAuthorized = (state: RootState) => state.users.authorized;

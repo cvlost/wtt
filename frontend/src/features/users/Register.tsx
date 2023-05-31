@@ -1,18 +1,24 @@
 import { Avatar, Box, Button, Container, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { resetAuthErrors, selectRegisterError, selectRegisterLoading } from './usersSlice';
+import { resetAuthErrors, selectRegisterError, selectRegisterLoading, selectUserAuthorized } from './usersSlice';
 import { register } from './usersThunks';
 import { IRegisterMutation } from '../../types';
 import FileInput from '../../components/FileInput/FileInput';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Dayjs } from 'dayjs';
 
 const Register = () => {
   const dispatch = useAppDispatch();
   const error = useAppSelector(selectRegisterError);
+  const authorized = useAppSelector(selectUserAuthorized);
   const navigate = useNavigate();
   const registerLoading = useAppSelector(selectRegisterLoading);
+  const [value, setValue] = useState<Dayjs | null>(null);
   const [state, setState] = useState<IRegisterMutation>({
     email: '',
     password: '',
@@ -20,8 +26,9 @@ const Register = () => {
     lastName: '',
     avatar: null,
     phone: '',
-    employed: '',
+    employed: null,
     position: '',
+    role: '',
   });
 
   useEffect(() => {
@@ -46,7 +53,7 @@ const Register = () => {
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    await dispatch(register(state)).unwrap();
+    await dispatch(register({ ...state, employed: value ? value.toISOString() : null })).unwrap();
     navigate('/');
   };
 
@@ -57,6 +64,10 @@ const Register = () => {
       return undefined;
     }
   };
+
+  if (!authorized) return <Navigate to="/login" />;
+
+  console.log(authorized);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -158,9 +169,30 @@ const Register = () => {
                 <MenuItem value="" disabled>
                   Select position
                 </MenuItem>
+                <MenuItem value="director">Director</MenuItem>
                 <MenuItem value="manager">Manager</MenuItem>
                 <MenuItem value="employee">Employee</MenuItem>
               </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField select required value={state.role} name="role" onChange={inputChangeHandler} label="Role">
+                <MenuItem value="" disabled>
+                  Select role
+                </MenuItem>
+                <MenuItem value="admin">Administrator</MenuItem>
+                <MenuItem value="user">User</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Employed at"
+                  value={value}
+                  onChange={(newValue) => {
+                    setValue(newValue);
+                  }}
+                />
+              </LocalizationProvider>
             </Grid>
             <Grid item xs={12}>
               <FileInput onChange={handleFileChange} name="avatar" label="Avatar" accept="image/*" />

@@ -11,9 +11,10 @@ export interface IUser {
   password: string;
   email: string;
   phone: string;
-  position: string;
-  avatar: string;
+  position: 'director' | 'manager' | 'employee';
+  avatar: string | null;
   employed: Date;
+  role: 'admin' | 'user';
 }
 
 export interface IUserLoginDto {
@@ -27,9 +28,10 @@ export interface ICreateUserDto {
   password: string;
   email: string;
   phone: string;
-  position: string;
-  avatar: string;
+  position: 'director' | 'manager' | 'employee';
+  avatar: string | null;
   employed: string;
+  role: 'admin' | 'user';
 }
 
 export interface IResponseUserDto {
@@ -38,9 +40,10 @@ export interface IResponseUserDto {
   lastName: string;
   email: string;
   phone: string;
-  position: string;
+  position: 'director' | 'manager' | 'employee';
   avatar: string | null;
   employed: Date;
+  role: 'admin' | 'user';
 }
 
 export interface IToken {

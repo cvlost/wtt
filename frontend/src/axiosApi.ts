@@ -5,6 +5,7 @@ import { Store } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
 const axiosApi = axios.create({
+  withCredentials: true,
   baseURL: apiUrl,
 });
 
@@ -12,7 +13,7 @@ export const addInterceptors = (store: Store<RootState>) => {
   axiosApi.interceptors.request.use((config: AxiosRequestConfig) => {
     const token = store.getState().users.accessToken;
     const headers = config.headers as AxiosHeaders;
-    headers.set('Authorization', token);
+    headers.set('Authorization', `Bearer ${token}`);
 
     return config;
   });
@@ -22,7 +23,7 @@ export const addInterceptors = (store: Store<RootState>) => {
     (error) => {
       if (isAxiosError(error)) {
         error = error as AxiosError;
-        if (error.response.status >= 400 && error.response.status < 500) {
+        if (error.response.status > 401 && error.response.status < 500) {
           toast.error(error.response.data.error);
         } else if (error.response.status >= 500) {
           toast.error('Failed. Internal Server error.');

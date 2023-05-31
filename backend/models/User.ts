@@ -36,11 +36,18 @@ const UserSchema = new Schema<IUser, UserModel, UserMethods>({
   position: {
     type: String,
     required: true,
+    enum: ['director', 'manager', 'employee'],
   },
   avatar: String,
   employed: {
     type: Date,
     required: true,
+  },
+  role: {
+    type: String,
+    required: true,
+    default: 'user',
+    enum: ['admin', 'user'],
   },
 });
 

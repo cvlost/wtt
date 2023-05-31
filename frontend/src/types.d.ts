@@ -20,9 +20,10 @@ export interface IUser {
   lastName: string;
   email: string;
   phone: string;
-  position: string;
+  position: 'director' | 'manager' | 'employee';
   avatar: string | null;
   employed: string;
+  role: 'user' | 'admin';
 }
 
 export interface ILoginMutation {
@@ -44,7 +45,8 @@ export interface IRegisterMutation {
   phone: string;
   position: string;
   avatar: File | null;
-  employed: string;
+  employed: string | null;
+  role: string;
 }
 
 export interface IRegisterResponse {

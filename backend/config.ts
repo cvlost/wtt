@@ -8,6 +8,7 @@ const config = {
   db: process.env.DB_URL || 'mongodb://localhost/work-time-tracker',
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || '',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
+  clientUrl: process.env.CLIENT_URL || '',
 };
 
 export default config;

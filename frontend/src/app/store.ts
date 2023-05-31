@@ -7,7 +7,7 @@ import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist
 const usersPersistConfig = {
   key: 'wtt:users',
   storage,
-  whitelist: ['user'],
+  whitelist: ['user', 'accessToken'],
 };
 
 const rootReducer = combineReducers({

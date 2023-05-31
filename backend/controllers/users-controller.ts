@@ -22,8 +22,11 @@ export const getAll: RequestHandler = async (req, res, next) => {
 };
 
 export const register: RequestHandler = async (req, res, next) => {
-  const { firstName, lastName, password, email, employed, phone, position, avatar } = req.body as ICreateUserDto;
-  const dto: ICreateUserDto = { firstName, lastName, password, email, employed, phone, position, avatar };
+  const avatar = req.file ? req.file.filename : null;
+  const { firstName, lastName, password, email, employed, phone, position, role } = req.body as ICreateUserDto;
+  const dto: ICreateUserDto = { firstName, lastName, password, email, employed, phone, position, avatar, role };
+
+  console.log(dto);
 
   try {
     const user = await usersService.create(dto);
