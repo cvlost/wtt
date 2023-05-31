@@ -54,3 +54,12 @@ export interface IToken {
 export interface IError {
   error: string;
 }
+
+export interface ITask {
+  user: Types.ObjectId;
+  date: Date;
+  startedAt: string;
+  finishedAt: string;
+  title: string;
+  description: string;
+}
