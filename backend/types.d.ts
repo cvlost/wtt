@@ -10,6 +10,10 @@ export interface IUser {
   lastName: string;
   password: string;
   email: string;
+  phone: string;
+  position: string;
+  avatar: string;
+  employed: Date;
 }
 
 export interface IUserLoginDto {
@@ -22,6 +26,10 @@ export interface ICreateUserDto {
   lastName: string;
   password: string;
   email: string;
+  phone: string;
+  position: string;
+  avatar: string;
+  employed: string;
 }
 
 export interface IResponseUserDto {
@@ -29,6 +37,10 @@ export interface IResponseUserDto {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
+  position: string;
+  avatar: string | null;
+  employed: Date;
 }
 
 export interface IToken {

@@ -14,6 +14,10 @@ const userCreateDto: ICreateUserDto = {
   password: 'testPass',
   firstName: 'Bob',
   lastName: 'Marley',
+  position: 'manager',
+  avatar: '/some/avatar.jpg',
+  phone: '+234-423-434',
+  employed: new Date('2022-10-11').toISOString(),
 };
 
 describe('Route /users', () => {

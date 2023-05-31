@@ -29,6 +29,19 @@ const UserSchema = new Schema<IUser, UserModel, UserMethods>({
     required: true,
     unique: true,
   },
+  phone: {
+    type: String,
+    required: true,
+  },
+  position: {
+    type: String,
+    required: true,
+  },
+  avatar: String,
+  employed: {
+    type: Date,
+    required: true,
+  },
 });
 
 UserSchema.pre('save', async function (next) {

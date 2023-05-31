@@ -22,8 +22,8 @@ export const getAll: RequestHandler = async (req, res, next) => {
 };
 
 export const register: RequestHandler = async (req, res, next) => {
-  const { firstName, lastName, password, email } = req.body as ICreateUserDto;
-  const dto: ICreateUserDto = { firstName, lastName, password, email };
+  const { firstName, lastName, password, email, employed, phone, position, avatar } = req.body as ICreateUserDto;
+  const dto: ICreateUserDto = { firstName, lastName, password, email, employed, phone, position, avatar };
 
   try {
     const user = await usersService.create(dto);
@@ -53,6 +53,8 @@ export const login: RequestHandler = async (req, res, next) => {
     const userResponseDto = new ResponseUserDto(user);
     const tokens = generateToken({ ...userResponseDto });
     await saveToken(user._id, tokens.refreshToken);
+
+    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 40, httpOnly: true });
 
     return res.status(200).send({
       message: 'User logged in successfully!',
