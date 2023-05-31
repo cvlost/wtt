@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from './app/hooks';
 import { selectUserAuthorized, selectUserToken } from './features/users/usersSlice';
 import Register from './features/users/Register';
 import { checkAuth } from './features/users/usersThunks';
+import Calendar from './features/users/Calendar';
+import Day from './features/users/Day';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -29,6 +31,22 @@ function App() {
           element={
             <ProtectedRoute isAllowed={authorized}>
               <Register />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <Calendar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar/:id"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <Day />
             </ProtectedRoute>
           }
         />

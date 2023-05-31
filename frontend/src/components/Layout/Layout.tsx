@@ -13,12 +13,12 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
       <Box>
         <ToastContainer {...toastConfig} />
         <Grid container>
-          <Grid item>
+          <Grid item xs={3}>
             <Sidebar />
           </Grid>
-          <Grid item>
+          <Grid item xs={9}>
             <Box>
-              <Grid container>
+              <Grid container direction="column">
                 <Grid item>
                   <TopMenu />
                 </Grid>

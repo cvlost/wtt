@@ -32,7 +32,7 @@ const Login = () => {
     event.preventDefault();
 
     await dispatch(login(state)).unwrap();
-    navigate('/');
+    navigate('/calendar');
   };
 
   return (
