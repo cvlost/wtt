@@ -5,7 +5,7 @@ import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 
 const Logo = () => {
   return (
-    <Button component={NavLink} to="/" startIcon={<HistoryToggleOffIcon />} size="large">
+    <Button component={NavLink} to="/" startIcon={<HistoryToggleOffIcon />} fullWidth size="large">
       Time tracker
     </Button>
   );

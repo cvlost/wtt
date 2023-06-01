@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { addInterceptors } from './axiosApi';
 import { ThemeProvider } from '@mui/material';
 import theme from './theme';
+import DialogsProvider from './components/Dialogs/DialogsProvider';
 
 addInterceptors(store);
 
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <PersistGate persistor={persistor}>
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <App />
+          <DialogsProvider>
+            <App />
+          </DialogsProvider>
         </ThemeProvider>
       </BrowserRouter>
     </PersistGate>

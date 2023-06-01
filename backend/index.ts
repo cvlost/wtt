@@ -2,8 +2,10 @@ import mongoose from 'mongoose';
 import config from './config';
 import usersRouter from './routes/users';
 import app from './app/app';
+import reportsRouter from './routes/reports';
 
 app.use('/api/users', usersRouter);
+app.use('/api/reports', reportsRouter);
 
 const run = async () => {
   await mongoose.connect(config.db);

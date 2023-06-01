@@ -8,8 +8,8 @@ import { useAppDispatch, useAppSelector } from './app/hooks';
 import { selectUserAuthorized, selectUserToken } from './features/users/usersSlice';
 import Register from './features/users/Register';
 import { checkAuth } from './features/users/usersThunks';
-import Calendar from './features/users/Calendar';
-import Day from './features/users/Day';
+import Calendar from './features/calendar/Calendar';
+import Day from './features/calendar/Day';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -23,9 +23,15 @@ function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<div>main path</div>} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <Calendar />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
         <Route
           path="/register"
           element={
@@ -50,6 +56,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

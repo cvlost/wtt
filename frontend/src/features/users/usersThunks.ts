@@ -35,7 +35,7 @@ export const register = createAsyncThunk<IUser, IRegisterMutation, { rejectValue
 
       if (isAxiosError(e) && e.response && e.response.status === 401) {
         try {
-          const response = await axios.get<ILoginResponse>(`${apiUrl}/users/refresh`, { withCredentials: true });
+          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
           dispatch(setUser(response.data));
           return await request();
         } catch (e) {
@@ -70,7 +70,7 @@ export const login = createAsyncThunk<ILoginResponse, ILoginMutation, { rejectVa
 
 export const logout = createAsyncThunk<void, void, { state: RootState }>('users/logout', async (_, { dispatch }) => {
   dispatch(unsetUser());
-  await axiosApi.delete('/users/sessions');
+  await axiosApi.delete('/users/logout');
 });
 
 export const checkAuth = createAsyncThunk<ILoginResponse, void, { state: RootState; rejectValue: GlobalError }>(

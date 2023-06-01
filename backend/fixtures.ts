@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import config from './config';
 import User from './models/User';
+import Report from './models/Report';
 
 const run = async () => {
   await mongoose.connect(config.db);
@@ -9,6 +10,7 @@ const run = async () => {
   try {
     await db.dropCollection('users');
     await db.dropCollection('tokens');
+    await db.dropCollection('reports');
   } catch (e) {
     console.log('Collections were not present, skipping drop...');
   }
@@ -55,6 +57,41 @@ const run = async () => {
       position: 'manager',
       avatar: '/images/avatars/manager3.jpg',
       employed: new Date('2022-05-23'),
+    },
+  );
+
+  await Report.create(
+    {
+      user: admin._id,
+      title: 'Admin report 1',
+      dateStr: '2023-05-31',
+      description: 'some description here',
+      startedAt: new Date('2023-05-31T19:00:00.039Z'),
+      finishedAt: new Date('2023-05-31T19:05:00.039Z'),
+    },
+    {
+      user: admin._id,
+      title: 'Admin report 1',
+      dateStr: '2023-05-31',
+      description: 'some description here',
+      startedAt: new Date('2023-05-31T19:05:00.039Z'),
+      finishedAt: new Date('2023-05-31T19:10:00.039Z'),
+    },
+    {
+      user: admin._id,
+      title: 'Admin report 2',
+      dateStr: '2023-05-30',
+      description: 'some description 2 here',
+      startedAt: new Date('2023-05-30T19:05:57.039Z'),
+      finishedAt: new Date('2023-05-30T19:06:57.039Z'),
+    },
+    {
+      user: admin._id,
+      title: 'Admin report 1',
+      dateStr: '2023-05-29',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-05-29T19:02:57.039Z'),
+      finishedAt: new Date('2023-05-29T19:05:57.039Z'),
     },
   );
 

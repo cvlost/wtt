@@ -55,11 +55,13 @@ export interface IError {
   error: string;
 }
 
-export interface ITask {
+export interface IReport {
   user: Types.ObjectId;
-  date: Date;
-  startedAt: string;
-  finishedAt: string;
+  dateStr: string;
+  startedAt: Date;
+  startedAtMinutes: number;
+  finishedAt: Date;
+  finishedAtMinutes: number;
   title: string;
-  description: string;
+  description: Date;
 }

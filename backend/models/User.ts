@@ -11,45 +11,48 @@ export type UserDocument = HydratedDocument<IUser, UserMethods>;
 
 const SALT_WORK_FACTOR = 8;
 
-const UserSchema = new Schema<IUser, UserModel, UserMethods>({
-  firstName: {
-    type: String,
-    required: true,
+const UserSchema = new Schema<IUser, UserModel, UserMethods>(
+  {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    position: {
+      type: String,
+      required: true,
+      enum: ['director', 'manager', 'employee'],
+    },
+    avatar: String,
+    employed: {
+      type: Date,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+      default: 'user',
+      enum: ['admin', 'user'],
+    },
   },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  position: {
-    type: String,
-    required: true,
-    enum: ['director', 'manager', 'employee'],
-  },
-  avatar: String,
-  employed: {
-    type: Date,
-    required: true,
-  },
-  role: {
-    type: String,
-    required: true,
-    default: 'user',
-    enum: ['admin', 'user'],
-  },
-});
+  { versionKey: false },
+);
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -65,7 +68,6 @@ UserSchema.set('toJSON', {
     delete ret.password;
     ret.id = ret._id;
     delete ret._id;
-    delete ret.__v;
     return ret;
   },
 });

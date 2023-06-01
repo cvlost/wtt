@@ -54,3 +54,19 @@ export interface IRegisterResponse {
   user: IUser;
   accessToken: string;
 }
+
+export interface IReport {
+  id: string;
+  user: IUser;
+  dateStr: string;
+  startedAt: string;
+  finishedAt: string;
+  title: string;
+  description: string;
+}
+
+export interface IDayReport {
+  dateStr: string;
+  reportsNumber: number;
+  totalTime: number;
+}
