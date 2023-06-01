@@ -7,6 +7,10 @@ export const getAll = async () => {
   return User.find();
 };
 
+export const getOne = async (_id: string) => {
+  return User.findById({ _id });
+};
+
 export const findById = async (id: string | Types.ObjectId) => {
   return User.findById(id);
 };

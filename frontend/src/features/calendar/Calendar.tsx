@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DayCellContentArg, DayCellMountArg } from '@fullcalendar/core';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getAllReports } from './calendarThunks';
@@ -18,6 +18,7 @@ dayjs.extend(duration);
 
 const Calendar = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
   const reports = useAppSelector(selectReportsList);
   const reportsLoading = useAppSelector(selectReportsListLoading);
@@ -46,8 +47,8 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllReports());
-  }, [dispatch]);
+    dispatch(getAllReports(location.search));
+  }, [dispatch, location.search]);
 
   return (
     <Box sx={{ p: 2 }}>

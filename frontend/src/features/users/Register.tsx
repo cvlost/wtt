@@ -54,7 +54,7 @@ const Register = () => {
     event.preventDefault();
 
     await dispatch(register({ ...state, employed: value ? value.toISOString() : null })).unwrap();
-    navigate('/');
+    navigate('/users');
   };
 
   const getFieldError = (fieldName: string) => {
@@ -66,8 +66,6 @@ const Register = () => {
   };
 
   if (!authorized) return <Navigate to="/login" />;
-
-  console.log(authorized);
 
   return (
     <Container component="main" maxWidth="xs">

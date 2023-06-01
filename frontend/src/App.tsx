@@ -10,6 +10,8 @@ import Register from './features/users/Register';
 import { checkAuth } from './features/users/usersThunks';
 import Calendar from './features/calendar/Calendar';
 import Day from './features/calendar/Day';
+import Users from './features/users/Users';
+import UserPage from './features/users/UserPage';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -37,6 +39,22 @@ function App() {
           element={
             <ProtectedRoute isAllowed={authorized}>
               <Register />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <UserPage />
             </ProtectedRoute>
           }
         />

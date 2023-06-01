@@ -89,3 +89,55 @@ export const checkAuth = createAsyncThunk<ILoginResponse, void, { state: RootSta
     }
   },
 );
+
+export const getUsersList = createAsyncThunk<IUser[], void, { state: RootState }>(
+  'users/getUsersList',
+  async (_, { dispatch }) => {
+    const request = async () => {
+      const response = await axiosApi.get<IUser[]>(`/users`);
+      return response.data;
+    };
+
+    try {
+      return await request();
+    } catch (e) {
+      if (isAxiosError(e) && e.response && e.response.status === 401) {
+        try {
+          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
+          dispatch(setUser(response.data));
+          return await request();
+        } catch (e) {
+          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
+          throw e;
+        }
+      }
+      throw e;
+    }
+  },
+);
+
+export const getOneUser = createAsyncThunk<IUser, string, { state: RootState }>(
+  'users/getOneUser',
+  async (id, { dispatch }) => {
+    const request = async () => {
+      const response = await axiosApi.get<IUser>(`/users/${id}`);
+      return response.data;
+    };
+
+    try {
+      return await request();
+    } catch (e) {
+      if (isAxiosError(e) && e.response && e.response.status === 401) {
+        try {
+          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
+          dispatch(setUser(response.data));
+          return await request();
+        } catch (e) {
+          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
+          throw e;
+        }
+      }
+      throw e;
+    }
+  },
+);

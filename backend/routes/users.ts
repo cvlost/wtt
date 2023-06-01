@@ -10,5 +10,6 @@ usersRouter.post('/register', auth, imagesUpload.single('avatar'), usersControll
 usersRouter.post('/login', usersController.login);
 usersRouter.delete('/logout', usersController.logout);
 usersRouter.get('/refresh', usersController.refresh);
+usersRouter.get('/:id', auth, usersController.getOne);
 
 export default usersRouter;

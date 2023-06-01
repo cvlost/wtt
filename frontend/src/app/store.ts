@@ -8,7 +8,7 @@ import { calendarReducer } from '../features/calendar/calendarSlice';
 const usersPersistConfig = {
   key: 'wtt:users',
   storage,
-  whitelist: ['user', 'accessToken'],
+  whitelist: ['user', 'accessToken', 'authorized'],
 };
 
 const rootReducer = combineReducers({

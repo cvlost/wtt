@@ -1,10 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { GlobalError, ILoginResponse, IUser, ValidationError } from '../../types';
 import { RootState } from '../../app/store';
-import { checkAuth, login, register } from './usersThunks';
+import { checkAuth, getOneUser, getUsersList, login, register } from './usersThunks';
 
 interface UsersState {
   user: IUser | null;
+  usersList: IUser[];
+  usersListLoading: boolean;
+  oneUser: IUser | null;
+  oneUserLoading: boolean;
   accessToken: string | null;
   registerLoading: boolean;
   registerError: ValidationError | null;
@@ -16,6 +20,10 @@ interface UsersState {
 
 const initialState: UsersState = {
   user: null,
+  usersList: [],
+  usersListLoading: false,
+  oneUser: null,
+  oneUserLoading: false,
   accessToken: null,
   registerError: null,
   registerLoading: false,
@@ -29,6 +37,12 @@ const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
+    unsetOneUser: (state) => {
+      state.oneUser = null;
+    },
+    unsetUsersList: (state) => {
+      state.usersList = [];
+    },
     resetAuthErrors: (state) => {
       state.registerError = null;
       state.loginError = null;
@@ -36,7 +50,7 @@ const usersSlice = createSlice({
     setUser: (state, { payload }: PayloadAction<ILoginResponse>) => {
       state.user = payload.user;
       state.accessToken = payload.accessToken;
-      state.authorized = false;
+      state.authorized = true;
     },
     unsetUser: (state) => {
       state.user = null;
@@ -87,11 +101,33 @@ const usersSlice = createSlice({
       state.checkAuthLoading = false;
       state.authorized = false;
     });
+
+    builder.addCase(getUsersList.pending, (state) => {
+      state.usersListLoading = true;
+    });
+    builder.addCase(getUsersList.fulfilled, (state, { payload }) => {
+      state.usersList = payload;
+      state.usersListLoading = false;
+    });
+    builder.addCase(getUsersList.rejected, (state) => {
+      state.usersListLoading = false;
+    });
+
+    builder.addCase(getOneUser.pending, (state) => {
+      state.oneUserLoading = true;
+    });
+    builder.addCase(getOneUser.fulfilled, (state, { payload }) => {
+      state.oneUser = payload;
+      state.oneUserLoading = false;
+    });
+    builder.addCase(getOneUser.rejected, (state) => {
+      state.oneUserLoading = false;
+    });
   },
 });
 
 export const usersReducer = usersSlice.reducer;
-export const { unsetUser, resetAuthErrors, setUser } = usersSlice.actions;
+export const { unsetUser, resetAuthErrors, setUser, unsetUsersList, unsetOneUser } = usersSlice.actions;
 
 export const selectUser = (state: RootState) => state.users.user;
 export const selectRegisterLoading = (state: RootState) => state.users.registerLoading;
@@ -100,3 +136,7 @@ export const selectLoginLoading = (state: RootState) => state.users.loginLoading
 export const selectLoginError = (state: RootState) => state.users.loginError;
 export const selectUserToken = (state: RootState) => state.users.accessToken;
 export const selectUserAuthorized = (state: RootState) => state.users.authorized;
+export const selectUsersList = (state: RootState) => state.users.usersList;
+export const selectUsersListLoading = (state: RootState) => state.users.usersListLoading;
+export const selectOneUser = (state: RootState) => state.users.oneUser;
+export const selectOneUserLoading = (state: RootState) => state.users.oneUserLoading;

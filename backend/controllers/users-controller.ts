@@ -21,12 +21,21 @@ export const getAll: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getOne: RequestHandler = async (req, res, next) => {
+  const id = req.params.id as string;
+
+  try {
+    const user = await usersService.getOne(id);
+    return res.send(user);
+  } catch (e) {
+    return next(e);
+  }
+};
+
 export const register: RequestHandler = async (req, res, next) => {
   const avatar = req.file ? req.file.filename : null;
   const { firstName, lastName, password, email, employed, phone, position, role } = req.body as ICreateUserDto;
   const dto: ICreateUserDto = { firstName, lastName, password, email, employed, phone, position, avatar, role };
-
-  console.log(dto);
 
   try {
     const user = await usersService.create(dto);
@@ -34,7 +43,7 @@ export const register: RequestHandler = async (req, res, next) => {
     const tokens = generateToken({ ...userResponseDto });
     await saveToken(user._id, tokens.refreshToken);
 
-    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 40, httpOnly: true });
+    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 60 * 60, httpOnly: true });
 
     return res.status(201).send({
       user: userResponseDto,
@@ -93,7 +102,7 @@ export const refresh: RequestHandler = async (req, res, next) => {
     await checkTokenExistence(refreshToken);
 
     const user = await usersService.findById(userPayload.id);
-    if (!user) return res.status(404).send({ error: 'Cannot refresh tokens - user does not exist' });
+    if (!user) return res.status(401).send({ error: 'Cannot refresh tokens - user does not exist' });
 
     const userResponseDto = new ResponseUserDto(user);
     const tokens = generateToken({ ...userResponseDto });

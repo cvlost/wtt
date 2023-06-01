@@ -1,8 +1,9 @@
 import Report from '../models/Report';
+import { Types } from 'mongoose';
 
 export const getAll = async (user?: string) => {
   return Report.aggregate([
-    { $match: user ? { user } : {} },
+    { $match: user ? { user: new Types.ObjectId(user) } : {} },
     {
       $project: {
         dateStr: 1,
@@ -40,17 +41,6 @@ export const getAll = async (user?: string) => {
       },
     },
   ]);
-  // return Report.aggregate([
-  //   { $match: user ? { user: new Types.ObjectId(user) } : {} },
-  //   {
-  //     $group: {
-  //       _id: '$dateStr',
-  //       reportsNumber: { $sum: 1 },
-  //       totalTime: { $sum: { $subtract: [{ $toDate: '$finishedAt' }, { $toDate: '$startedAt' }] } },
-  //     },
-  //   },
-  //   { $project: { _id: 0, dateStr: '$_id', reportsNumber: 1, totalTime: 1 } },
-  // ]);
 };
 
 export const getByDate = async (user: string, dateStr: string) => {

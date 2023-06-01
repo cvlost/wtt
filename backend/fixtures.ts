@@ -93,6 +93,49 @@ const run = async () => {
       startedAt: new Date('2023-05-29T19:02:57.039Z'),
       finishedAt: new Date('2023-05-29T19:05:57.039Z'),
     },
+
+    {
+      user: user1._id,
+      title: 'User 1 report 1',
+      dateStr: '2023-05-29',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-05-29T19:02:57.039Z'),
+      finishedAt: new Date('2023-05-29T19:05:57.039Z'),
+    },
+    {
+      user: user1._id,
+      title: 'User 1 report 1',
+      dateStr: '2023-06-01',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-06-01T19:02:57.039Z'),
+      finishedAt: new Date('2023-06-01T19:05:57.039Z'),
+    },
+
+    {
+      user: user2._id,
+      title: 'User 2 report 1',
+      dateStr: '2023-05-29',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-05-29T19:02:57.039Z'),
+      finishedAt: new Date('2023-05-29T19:05:57.039Z'),
+    },
+    {
+      user: user2._id,
+      title: 'User 2 report 1',
+      dateStr: '2023-06-01',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-06-01T19:02:57.039Z'),
+      finishedAt: new Date('2023-06-01T19:05:57.039Z'),
+    },
+
+    {
+      user: user3._id,
+      title: 'user 3 report 1',
+      dateStr: '2023-05-29',
+      description: 'some description 3 here',
+      startedAt: new Date('2023-05-29T19:02:57.039Z'),
+      finishedAt: new Date('2023-05-29T19:05:57.039Z'),
+    },
   );
 
   await db.close();

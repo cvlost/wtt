@@ -6,8 +6,8 @@ import { IResponseUserDto } from '../types';
 import { Unauthorized } from '../errors/errors';
 
 export const generateToken = (payload: object) => {
-  const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '20s' });
-  const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '40s' });
+  const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '10s' });
+  const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '1h' });
 
   return { accessToken, refreshToken };
 };

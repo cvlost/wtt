@@ -5,11 +5,11 @@ import { isAxiosError } from 'axios';
 import { setUser, unsetUser } from '../users/usersSlice';
 import { RootState } from '../../app/store';
 
-export const getAllReports = createAsyncThunk<IDayReport[], void, { state: RootState }>(
+export const getAllReports = createAsyncThunk<IDayReport[], string | void, { state: RootState }>(
   'calendar/getAllReports',
-  async (_, { dispatch }) => {
+  async (searchParams, { dispatch }) => {
     const request = async () => {
-      const response = await axiosApi.get<IDayReport[]>(`/reports`);
+      const response = await axiosApi.get<IDayReport[]>(`/reports${searchParams ?? ''}`);
       return response.data;
     };
 
@@ -22,15 +22,10 @@ export const getAllReports = createAsyncThunk<IDayReport[], void, { state: RootS
           dispatch(setUser(response.data));
           return await request();
         } catch (e) {
-          if (isAxiosError(e) && e.response && e.response.status === 401) {
-            dispatch(unsetUser());
-            return [];
-          }
-
+          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
           throw e;
         }
       }
-
       throw e;
     }
   },
@@ -53,15 +48,10 @@ export const getAllReportsByDay = createAsyncThunk<IReport[], string, { state: R
           dispatch(setUser(response.data));
           return await request();
         } catch (e) {
-          if (isAxiosError(e) && e.response && e.response.status === 401) {
-            dispatch(unsetUser());
-            return [];
-          }
-
+          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
           throw e;
         }
       }
-
       throw e;
     }
   },
