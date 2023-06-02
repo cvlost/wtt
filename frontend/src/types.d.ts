@@ -52,7 +52,6 @@ export interface IRegisterMutation {
 export interface IRegisterResponse {
   message: string;
   user: IUser;
-  accessToken: string;
 }
 
 export interface IReport {
@@ -67,7 +66,7 @@ export interface IReport {
 
 export interface IDayReport {
   dateStr: string;
-  reportsNumber: number;
+  count: number;
   totalTime: number;
 }
 

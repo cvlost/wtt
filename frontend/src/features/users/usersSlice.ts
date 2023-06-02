@@ -63,8 +63,7 @@ const usersSlice = createSlice({
       state.registerError = null;
       state.registerLoading = true;
     });
-    builder.addCase(register.fulfilled, (state, { payload: user }) => {
-      state.user = user;
+    builder.addCase(register.fulfilled, (state) => {
       state.registerLoading = false;
     });
     builder.addCase(register.rejected, (state, { payload: error }) => {

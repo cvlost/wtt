@@ -14,7 +14,7 @@ import { RootState } from '../../app/store';
 import { setUser, unsetUser } from './usersSlice';
 import { apiUrl } from '../../config';
 
-export const register = createAsyncThunk<IUser, IRegisterMutation, { rejectValue: ValidationError }>(
+export const register = createAsyncThunk<void, IRegisterMutation, { rejectValue: ValidationError }>(
   'users/register',
   async (data, { rejectWithValue, dispatch }) => {
     const request = async () => {
@@ -23,8 +23,7 @@ export const register = createAsyncThunk<IUser, IRegisterMutation, { rejectValue
       for (const [key, value] of Object.entries(data))
         if (data[key as keyof IRegisterMutation]) registerForm.append(key, value);
 
-      const response = await axiosApi.post<IRegisterResponse>('/users/register', registerForm);
-      return response.data.user;
+      await axiosApi.post<IRegisterResponse>('/users/register', registerForm);
     };
 
     try {

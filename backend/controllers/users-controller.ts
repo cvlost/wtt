@@ -40,15 +40,10 @@ export const register: RequestHandler = async (req, res, next) => {
   try {
     const user = await usersService.create(dto);
     const userResponseDto = new ResponseUserDto(user);
-    const tokens = generateToken({ ...userResponseDto });
-    await saveToken(user._id, tokens.refreshToken);
-
-    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 60 * 60, httpOnly: true });
 
     return res.status(201).send({
       user: userResponseDto,
-      accessToken: tokens.accessToken,
-      message: 'Registration was successful!',
+      message: 'A new user has been registered!',
     });
   } catch (e) {
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);

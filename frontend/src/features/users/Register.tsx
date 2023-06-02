@@ -193,7 +193,7 @@ const Register = () => {
               </LocalizationProvider>
             </Grid>
             <Grid item xs={12}>
-              <FileInput onChange={handleFileChange} name="avatar" label="Avatar" accept="image/*" />
+              <FileInput onChange={handleFileChange} name="avatar" label="Avatar" accept="image/*" required />
             </Grid>
           </Grid>
           <Button disabled={registerLoading} type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

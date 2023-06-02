@@ -4,10 +4,12 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Box,
   Button,
   Dialog,
   DialogContent,
+  Grid,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -40,17 +42,28 @@ const Day = () => {
 
   return (
     <Box p={2}>
-      <Typography fontWeight="bold">one Day {id}</Typography>
-      {!userId && (
-        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setIsModalOpen(true)}>
-          Report
-        </Button>
-      )}
+      <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+        <Grid item>
+          <Typography variant={'h5'} component={'h5'}>
+            Reports -{' '}
+            <Typography component="span" variant={'h5'} fontWeight="bold">
+              {dayjs(id).format('D MMMM YYYY')}
+            </Typography>
+          </Typography>
+        </Grid>
+        <Grid item>
+          {!userId && (
+            <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setIsModalOpen(true)}>
+              Report
+            </Button>
+          )}
+        </Grid>
+      </Grid>
+
       <Box>
-        <Typography fontWeight="bold">Reports list</Typography>
         {reportsLoading ? (
           <MainPreloader />
-        ) : (
+        ) : reports.length ? (
           <Box>
             {reports.map((report) => {
               const start = dayjs(report.startedAt);
@@ -73,6 +86,8 @@ const Day = () => {
               );
             })}
           </Box>
+        ) : (
+          <Alert severity="info">0 reports.</Alert>
         )}
       </Box>
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>

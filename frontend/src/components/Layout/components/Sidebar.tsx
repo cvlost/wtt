@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { selectUser } from '../../../features/users/usersSlice';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import GroupIcon from '@mui/icons-material/Group';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -21,25 +20,53 @@ const Sidebar = () => {
   return (
     <Box sx={{ position: 'sticky', top: 0 }}>
       <Logo />
-      <List>
+      <List
+        sx={{
+          py: 0,
+          color: 'azure',
+          '& .MuiMenuItem-root': {
+            overflow: 'hidden',
+          },
+          '& .MuiMenuItem-root.active': {
+            bgcolor: '#2c3e50',
+          },
+          '& .MuiMenuItem-root.active:hover': {
+            bgcolor: '#2c3e50',
+          },
+          '& .MuiMenuItem-root.active::before': {
+            content: '""',
+            position: 'absolute',
+            height: '3em',
+            transform: 'rotate(45deg)',
+            width: '3em',
+            bgcolor: 'white',
+            right: '-40px',
+          },
+          '& .MuiMenuItem-root::before': {
+            content: '""',
+            position: 'absolute',
+            height: '3em',
+            transform: 'rotate(45deg)',
+            width: '3em',
+            bgcolor: 'white',
+            right: '-60px',
+            transition: 'right .2s',
+          },
+        }}
+      >
         {user && (
           <MenuItem component={NavLink} to="/calendar">
             <CalendarMonthIcon sx={{ mr: 1 }} /> Calendar
           </MenuItem>
         )}
         {user && (
-          <MenuItem component={NavLink} to="/profile">
+          <MenuItem component={NavLink} to={`/profile/${user.id}`}>
             <ContactsIcon sx={{ mr: 1 }} /> Profile
           </MenuItem>
         )}
         {user?.role === 'admin' && (
           <MenuItem component={NavLink} to="/users">
             <GroupIcon sx={{ mr: 1 }} /> Users
-          </MenuItem>
-        )}
-        {user?.role === 'admin' && (
-          <MenuItem component={NavLink} to="/register">
-            <GroupAddIcon sx={{ mr: 1 }} /> register
           </MenuItem>
         )}
         {!user && (

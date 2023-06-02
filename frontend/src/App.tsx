@@ -51,7 +51,7 @@ function App() {
           }
         />
         <Route
-          path="/users/:id"
+          path="/profile/:id"
           element={
             <ProtectedRoute isAllowed={authorized}>
               <UserPage />

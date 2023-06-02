@@ -16,6 +16,7 @@ export const getAll = async (user?: string) => {
     {
       $group: {
         _id: '$dateStr',
+        count: { $sum: 1 },
         _temp: {
           $push: '$minutes',
         },
@@ -27,6 +28,7 @@ export const getAll = async (user?: string) => {
     {
       $project: {
         _id: 0,
+        count: 1,
         dateStr: '$_id',
         totalTime: {
           $size: {

@@ -12,11 +12,11 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
       <ToastContainer {...toastConfig} />
       <CssBaseline />
       <Box sx={{ height: '100vh' }}>
-        <Grid container sx={{ height: '100%' }}>
-          <Grid item xs={3} sx={{ boxShadow: 3, height: '100%' }}>
+        <Grid container sx={{ height: '100%' }} flexWrap="nowrap">
+          <Grid item sx={{ height: '100%', width: '240px', flexShrink: 0, bgcolor: '#ff5b1e' }}>
             <Sidebar />
           </Grid>
-          <Grid item xs={9} sx={{ boxShadow: 3, height: '100%', overflow: 'auto' }}>
+          <Grid item sx={{ height: '100%', overflow: 'auto', flexGrow: 1 }}>
             <Box sx={{ height: '100vh', overflow: 'auto' }}>
               <Grid container direction="column" flexWrap="nowrap" sx={{ height: '100vh', overflow: 'auto' }}>
                 <Grid item>

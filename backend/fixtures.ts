@@ -22,7 +22,7 @@ const run = async () => {
     email: 'jack@mail.com',
     phone: '+777-989-888',
     position: 'director',
-    avatar: '/images/avatars/admin.jpg',
+    avatar: 'images/admin.jpg',
     employed: new Date('2020-10-10'),
     role: 'admin',
   });
@@ -34,8 +34,8 @@ const run = async () => {
       password: '###333',
       email: 'kate@mail.com',
       phone: '+277-989-888',
-      position: 'employee',
-      avatar: '/images/avatars/manager1.jpg',
+      position: 'manager',
+      avatar: 'images/manager1.jpg',
       employed: new Date('2020-12-14'),
     },
     {
@@ -45,7 +45,7 @@ const run = async () => {
       email: 'daniel@mail.com',
       phone: '+599-888-777',
       position: 'manager',
-      avatar: '/images/avatars/manager2.jpg',
+      avatar: 'images/manager2.jpg',
       employed: new Date('2021-03-01'),
     },
     {
@@ -54,8 +54,8 @@ const run = async () => {
       password: '###333',
       email: 'will@mail.com',
       phone: '+679-888-777',
-      position: 'manager',
-      avatar: '/images/avatars/manager3.jpg',
+      position: 'employee',
+      avatar: 'images/employee.jpg',
       employed: new Date('2022-05-23'),
     },
   );
