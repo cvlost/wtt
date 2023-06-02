@@ -70,3 +70,12 @@ export interface IDayReport {
   reportsNumber: number;
   totalTime: number;
 }
+
+export interface IReportMutation {
+  user?: string;
+  dateStr: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  title: string;
+  description: string;
+}

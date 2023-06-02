@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Box, Card, CardContent, IconButton, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getUsersList } from './usersThunks';
-import { selectUsersList, selectUsersListLoading, unsetUsersList } from './usersSlice';
+import { selectUsersList, selectUsersListLoading } from './usersSlice';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { useNavigate } from 'react-router-dom';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -16,10 +16,6 @@ const Users = () => {
 
   useEffect(() => {
     dispatch(getUsersList());
-
-    return () => {
-      dispatch(unsetUsersList());
-    };
   }, [dispatch]);
 
   return (

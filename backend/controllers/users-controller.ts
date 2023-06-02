@@ -66,7 +66,7 @@ export const login: RequestHandler = async (req, res, next) => {
     const tokens = generateToken({ ...userResponseDto });
     await saveToken(user._id, tokens.refreshToken);
 
-    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 40, httpOnly: true });
+    res.cookie('refreshToken', tokens.refreshToken, { maxAge: 1000 * 60 * 60, httpOnly: true });
 
     return res.status(200).send({
       message: 'User logged in successfully!',

@@ -6,8 +6,9 @@ const reportsRouter = express.Router();
 
 reportsRouter.get('/', auth, reportsController.getAll);
 reportsRouter.get('/:date', auth, reportsController.getByDate);
-// tasksRouter.post('/', auth, reportsController.createOne);
-// tasksRouter.put('/:date', auth, reportsController.updateOne);
-// tasksRouter.delete('/date', auth, reportsController.deleteOne);
+reportsRouter.get('/single/:id', auth, reportsController.getOne);
+reportsRouter.post('/', auth, reportsController.createOne);
+// reportsRouter.put('/:date', auth, reportsController.updateOne);
+// reportsRouter.delete('/date', auth, reportsController.deleteOne);
 
 export default reportsRouter;

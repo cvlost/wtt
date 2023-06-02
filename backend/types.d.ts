@@ -63,5 +63,14 @@ export interface IReport {
   finishedAt: Date;
   finishedAtMinutes: number;
   title: string;
-  description: Date;
+  description: string;
+}
+
+export interface ICreateReportDto {
+  user: string;
+  dateStr: string;
+  startedAt: string;
+  finishedAt: string;
+  title: string;
+  description: string;
 }
