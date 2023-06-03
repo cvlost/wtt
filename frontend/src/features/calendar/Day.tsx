@@ -15,45 +15,76 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import ReportForm from './ReportForm';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { selectReportsByDayList, selectReportsByDayListLoading } from './calendarSlice';
+import { selectOneDayReport, selectOneDayReportLoading } from './calendarSlice';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
-import { getAllReportsByDay } from './calendarThunks';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { getOneDayReport } from './calendarThunks';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
 const Day = () => {
   const dispatch = useAppDispatch();
-  const reports = useAppSelector(selectReportsByDayList);
-  const reportsLoading = useAppSelector(selectReportsByDayListLoading);
+  const dayReport = useAppSelector(selectOneDayReport);
+  const dayReportLoading = useAppSelector(selectOneDayReportLoading);
   const location = useLocation();
   const id = useParams().id as string;
   const userId = useSearchParams()[0].get('user');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(getAllReportsByDay(id + location.search));
+    dispatch(getOneDayReport(id + location.search));
   }, [dispatch, id, location.search]);
+
+  const isAllowedDate = () => {
+    if (!dayReport) return false;
+
+    const today = dayjs();
+    const allowedDates: Dayjs[] = [today];
+
+    for (let i = 0; i < 2; i++) {
+      let prevDay = allowedDates[i].subtract(1, 'day');
+      while (prevDay.day() === 0 || prevDay.day() === 6) {
+        prevDay = prevDay.subtract(1, 'day');
+      }
+      allowedDates.push(prevDay);
+    }
+
+    if (today.day() === 0 || today.day() === 6) allowedDates.shift();
+
+    const allowedStr = allowedDates.map((date) => date.format('YYYY[-]MM[-]DD'));
+
+    return allowedStr.includes(dayReport.dateStr);
+  };
 
   return (
     <Box p={2}>
       <Grid container justifyContent="space-between" alignItems="center" mb={2}>
         <Grid item>
-          <Typography variant={'h5'} component={'h5'}>
-            Reports -{' '}
-            <Typography component="span" variant={'h5'} fontWeight="bold">
-              {dayjs(id).format('D MMMM YYYY')}
+          <Box display="flex" alignItems="center">
+            <PendingActionsIcon sx={{ mr: 1 }} />
+            <Typography variant={'h5'} component={'h5'}>
+              Reports -{' '}
+              <Typography component="span" variant={'h5'} fontWeight="bold">
+                {dayjs(id).format('D MMMM YYYY')}
+              </Typography>
             </Typography>
-          </Typography>
+          </Box>
         </Grid>
         <Grid item>
           {!userId && (
-            <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => setIsModalOpen(true)}>
+            <Button
+              disabled={!isAllowedDate()}
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setIsModalOpen(true)}
+            >
               Report
             </Button>
           )}
@@ -61,11 +92,11 @@ const Day = () => {
       </Grid>
 
       <Box>
-        {reportsLoading ? (
+        {dayReportLoading ? (
           <MainPreloader />
-        ) : reports.length ? (
+        ) : dayReport?.reports?.length ? (
           <Box>
-            {reports.map((report) => {
+            {dayReport.reports.map((report) => {
               const start = dayjs(report.startedAt);
               const finish = dayjs(report.finishedAt);
               const formattedStart = start.format('HH:mm');

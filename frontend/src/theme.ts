@@ -6,6 +6,7 @@ const theme = createTheme({
       defaultProps: {
         variant: 'outlined',
         fullWidth: true,
+        size: 'small',
       },
     },
     MuiButton: {

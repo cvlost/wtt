@@ -34,8 +34,20 @@ export const getOne: RequestHandler = async (req, res, next) => {
 
 export const register: RequestHandler = async (req, res, next) => {
   const avatar = req.file ? req.file.filename : null;
-  const { firstName, lastName, password, email, employed, phone, position, role } = req.body as ICreateUserDto;
-  const dto: ICreateUserDto = { firstName, lastName, password, email, employed, phone, position, avatar, role };
+  const { firstName, lastName, password, email, employed, phone, position, role, birthDay } =
+    req.body as ICreateUserDto;
+  const dto: ICreateUserDto = {
+    firstName,
+    lastName,
+    password,
+    email,
+    employed,
+    phone,
+    position,
+    avatar,
+    role,
+    birthDay,
+  };
 
   try {
     const user = await usersService.create(dto);

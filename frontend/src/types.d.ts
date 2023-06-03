@@ -24,6 +24,7 @@ export interface IUser {
   avatar: string | null;
   employed: string;
   role: 'user' | 'admin';
+  birthDay: string;
 }
 
 export interface ILoginMutation {
@@ -56,17 +57,22 @@ export interface IRegisterResponse {
 
 export interface IReport {
   id: string;
-  user: IUser;
-  dateStr: string;
   startedAt: string;
   finishedAt: string;
   title: string;
   description: string;
 }
 
-export interface IDayReport {
+export interface IDaySummary {
   dateStr: string;
   count: number;
+  totalTime: number;
+}
+
+export interface IDayReport {
+  user: IUser;
+  dateStr: string;
+  reports: IReport[];
   totalTime: number;
 }
 

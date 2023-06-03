@@ -1,4 +1,16 @@
-import { Avatar, Box, Button, Container, Divider, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  TextField,
+  Typography,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -11,6 +23,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
+import EmailIcon from '@mui/icons-material/Email';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import KeyIcon from '@mui/icons-material/Key';
+import PersonIcon from '@mui/icons-material/Person';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import BadgeIcon from '@mui/icons-material/Badge';
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 
 const Register = () => {
   const dispatch = useAppDispatch();
@@ -18,6 +38,7 @@ const Register = () => {
   const authorized = useAppSelector(selectUserAuthorized);
   const navigate = useNavigate();
   const registerLoading = useAppSelector(selectRegisterLoading);
+  const [showPassword, setShowPassword] = React.useState(false);
   const [value, setValue] = useState<Dayjs | null>(null);
   const [state, setState] = useState<IRegisterMutation>({
     email: '',
@@ -36,6 +57,12 @@ const Register = () => {
       dispatch(resetAuthErrors());
     };
   }, [dispatch]);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
 
   const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -92,6 +119,14 @@ const Register = () => {
                 label="E-mail"
                 name="email"
                 autoComplete="new-email"
+                type="email"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <EmailIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 value={state.email}
                 onChange={inputChangeHandler}
                 error={Boolean(getFieldError('email'))}
@@ -104,9 +139,23 @@ const Register = () => {
                 required
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={state.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <KeyIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position={'end'}>
+                      <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
                 onChange={inputChangeHandler}
                 error={Boolean(getFieldError('password'))}
                 helperText={getFieldError('password')}
@@ -123,6 +172,13 @@ const Register = () => {
                 name="firstName"
                 autoComplete="off"
                 value={state.firstName}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 onChange={inputChangeHandler}
                 error={Boolean(getFieldError('firstName'))}
                 helperText={getFieldError('firstName')}
@@ -136,6 +192,13 @@ const Register = () => {
                 name="lastName"
                 autoComplete="off"
                 value={state.lastName}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 onChange={inputChangeHandler}
                 error={Boolean(getFieldError('lastName'))}
                 helperText={getFieldError('lastName')}
@@ -150,6 +213,13 @@ const Register = () => {
                 name="phone"
                 autoComplete="off"
                 value={state.phone}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <LocalPhoneIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 onChange={inputChangeHandler}
                 error={Boolean(getFieldError('phone'))}
                 helperText={getFieldError('phone')}
@@ -160,6 +230,13 @@ const Register = () => {
                 select
                 required
                 value={state.position}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <BadgeIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 name="position"
                 onChange={inputChangeHandler}
                 label="Position"
@@ -173,7 +250,21 @@ const Register = () => {
               </TextField>
             </Grid>
             <Grid item xs={12}>
-              <TextField select required value={state.role} name="role" onChange={inputChangeHandler} label="Role">
+              <TextField
+                select
+                required
+                value={state.role}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <AdminPanelSettingsIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                name="role"
+                onChange={inputChangeHandler}
+                label="Role"
+              >
                 <MenuItem value="" disabled>
                   Select role
                 </MenuItem>
@@ -186,6 +277,15 @@ const Register = () => {
                 <DatePicker
                   label="Employed at"
                   value={value}
+                  slotProps={{
+                    inputAdornment: {
+                      position: 'start',
+                    },
+
+                    textField: {
+                      required: true,
+                    },
+                  }}
                   onChange={(newValue) => {
                     setValue(newValue);
                   }}

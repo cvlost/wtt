@@ -1,56 +1,43 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
   GlobalError,
-  IUser,
   ILoginMutation,
-  IRegisterMutation,
   ILoginResponse,
-  ValidationError,
+  IRegisterMutation,
   IRegisterResponse,
+  IUser,
+  ValidationError,
 } from '../../types';
 import axiosApi from '../../axiosApi';
 import axios, { isAxiosError } from 'axios';
-import { RootState } from '../../app/store';
-import { setUser, unsetUser } from './usersSlice';
+import { AppDispatch, RootState } from '../../app/store';
+import { unsetUser } from './usersSlice';
 import { apiUrl } from '../../config';
+import { authRetry } from '../calendar/calendarThunks';
 
-export const register = createAsyncThunk<void, IRegisterMutation, { rejectValue: ValidationError }>(
-  'users/register',
-  async (data, { rejectWithValue, dispatch }) => {
-    const request = async () => {
-      const registerForm = new FormData();
+export const register = createAsyncThunk<
+  void,
+  IRegisterMutation,
+  { rejectValue: ValidationError; dispatch: AppDispatch }
+>('users/register', async (data, { rejectWithValue, dispatch }) => {
+  const request = async () => {
+    const registerForm = new FormData();
 
-      for (const [key, value] of Object.entries(data))
-        if (data[key as keyof IRegisterMutation]) registerForm.append(key, value);
+    for (const [key, value] of Object.entries(data))
+      if (data[key as keyof IRegisterMutation]) registerForm.append(key, value);
 
-      await axiosApi.post<IRegisterResponse>('/users/register', registerForm);
-    };
+    await axiosApi.post<IRegisterResponse>('/users/register', registerForm);
+  };
 
-    try {
-      return await request();
-    } catch (e) {
-      if (isAxiosError(e) && e.response && e.response.status === 400)
-        return rejectWithValue(e.response.data as ValidationError);
+  try {
+    return await authRetry<void>(request, dispatch);
+  } catch (e) {
+    if (isAxiosError(e) && e.response && e.response.status === 400)
+      return rejectWithValue(e.response.data as ValidationError);
 
-      if (isAxiosError(e) && e.response && e.response.status === 401) {
-        try {
-          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
-          dispatch(setUser(response.data));
-          return await request();
-        } catch (e) {
-          if (isAxiosError(e) && e.response && e.response.status === 400)
-            return rejectWithValue(e.response.data as ValidationError);
-
-          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
-
-          throw e;
-        }
-      }
-
-      throw e;
-    }
-  },
-);
+    throw e;
+  }
+});
 
 export const login = createAsyncThunk<ILoginResponse, ILoginMutation, { rejectValue: GlobalError }>(
   'users/login',
@@ -89,7 +76,7 @@ export const checkAuth = createAsyncThunk<ILoginResponse, void, { state: RootSta
   },
 );
 
-export const getUsersList = createAsyncThunk<IUser[], void, { state: RootState }>(
+export const getUsersList = createAsyncThunk<IUser[], void, { state: RootState; dispatch: AppDispatch }>(
   'users/getUsersList',
   async (_, { dispatch }) => {
     const request = async () => {
@@ -97,25 +84,11 @@ export const getUsersList = createAsyncThunk<IUser[], void, { state: RootState }
       return response.data;
     };
 
-    try {
-      return await request();
-    } catch (e) {
-      if (isAxiosError(e) && e.response && e.response.status === 401) {
-        try {
-          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
-          dispatch(setUser(response.data));
-          return await request();
-        } catch (e) {
-          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
-          throw e;
-        }
-      }
-      throw e;
-    }
+    return await authRetry<IUser[]>(request, dispatch);
   },
 );
 
-export const getOneUser = createAsyncThunk<IUser, string, { state: RootState }>(
+export const getOneUser = createAsyncThunk<IUser, string, { state: RootState; dispatch: AppDispatch }>(
   'users/getOneUser',
   async (id, { dispatch }) => {
     const request = async () => {
@@ -123,20 +96,6 @@ export const getOneUser = createAsyncThunk<IUser, string, { state: RootState }>(
       return response.data;
     };
 
-    try {
-      return await request();
-    } catch (e) {
-      if (isAxiosError(e) && e.response && e.response.status === 401) {
-        try {
-          const response = await axiosApi.get<ILoginResponse>(`/users/refresh`);
-          dispatch(setUser(response.data));
-          return await request();
-        } catch (e) {
-          if (isAxiosError(e) && e.response && e.response.status === 401) dispatch(unsetUser());
-          throw e;
-        }
-      }
-      throw e;
-    }
+    return await authRetry<IUser>(request, dispatch);
   },
 );

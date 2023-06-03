@@ -1,26 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createReport, getAllReports, getAllReportsByDay, getOneReport } from './calendarThunks';
+import { createReport, getAllDaysSummary, getOneDayReport, getOneReport } from './calendarThunks';
 import { RootState } from '../../app/store';
-import { IDayReport, IReport } from '../../types';
+import { IDayReport, IDaySummary, IReport } from '../../types';
 
 interface CalendarState {
-  createReportLoading: boolean;
-  reportsList: IDayReport[];
-  reportsListLoading: boolean;
+  reportsSummaryList: IDaySummary[];
+  reportsSummaryListLoading: boolean;
+  oneDayReport: IDayReport | null;
+  oneDayReportLoading: boolean;
   oneReport: IReport | null;
   oneReportLoading: boolean;
-  reportsByDayList: IReport[];
-  reportsByDayListLoading: boolean;
+  createReportLoading: boolean;
 }
 
 const initialState: CalendarState = {
-  createReportLoading: false,
-  reportsList: [],
-  reportsListLoading: false,
+  reportsSummaryList: [],
+  reportsSummaryListLoading: false,
+  oneDayReport: null,
+  oneDayReportLoading: false,
   oneReport: null,
   oneReportLoading: false,
-  reportsByDayList: [],
-  reportsByDayListLoading: false,
+  createReportLoading: false,
 };
 
 const calendarSlice = createSlice({
@@ -28,26 +28,26 @@ const calendarSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getAllReports.pending, (state) => {
-      state.reportsListLoading = true;
+    builder.addCase(getAllDaysSummary.pending, (state) => {
+      state.reportsSummaryListLoading = true;
     });
-    builder.addCase(getAllReports.fulfilled, (state, { payload: reports }) => {
-      state.reportsList = reports;
-      state.reportsListLoading = false;
+    builder.addCase(getAllDaysSummary.fulfilled, (state, { payload: reports }) => {
+      state.reportsSummaryList = reports;
+      state.reportsSummaryListLoading = false;
     });
-    builder.addCase(getAllReports.rejected, (state) => {
-      state.reportsListLoading = false;
+    builder.addCase(getAllDaysSummary.rejected, (state) => {
+      state.reportsSummaryListLoading = false;
     });
 
-    builder.addCase(getAllReportsByDay.pending, (state) => {
-      state.reportsByDayListLoading = true;
+    builder.addCase(getOneDayReport.pending, (state) => {
+      state.oneDayReportLoading = true;
     });
-    builder.addCase(getAllReportsByDay.fulfilled, (state, { payload: reports }) => {
-      state.reportsByDayList = reports;
-      state.reportsByDayListLoading = false;
+    builder.addCase(getOneDayReport.fulfilled, (state, { payload: reports }) => {
+      state.oneDayReport = reports;
+      state.oneDayReportLoading = false;
     });
-    builder.addCase(getAllReportsByDay.rejected, (state) => {
-      state.reportsByDayListLoading = false;
+    builder.addCase(getOneDayReport.rejected, (state) => {
+      state.oneDayReportLoading = false;
     });
 
     builder.addCase(getOneReport.pending, (state) => {
@@ -75,10 +75,10 @@ const calendarSlice = createSlice({
 
 export const calendarReducer = calendarSlice.reducer;
 
-export const selectReportsList = (state: RootState) => state.calendar.reportsList;
-export const selectReportsByDayList = (state: RootState) => state.calendar.reportsByDayList;
-export const selectReportsListLoading = (state: RootState) => state.calendar.reportsListLoading;
-export const selectReportsByDayListLoading = (state: RootState) => state.calendar.reportsByDayListLoading;
+export const selectReportsSummaryList = (state: RootState) => state.calendar.reportsSummaryList;
+export const selectReportsSummaryListLoading = (state: RootState) => state.calendar.reportsSummaryListLoading;
+export const selectOneDayReport = (state: RootState) => state.calendar.oneDayReport;
+export const selectOneDayReportLoading = (state: RootState) => state.calendar.oneDayReportLoading;
+export const selectCreateReportLoading = (state: RootState) => state.calendar.createReportLoading;
 export const selectOneReport = (state: RootState) => state.calendar.oneReport;
 export const selectOneReportLoading = (state: RootState) => state.calendar.oneReportLoading;
-export const selectCreateReportLoading = (state: RootState) => state.calendar.createReportLoading;

@@ -44,6 +44,10 @@ const UserSchema = new Schema<IUser, UserModel, UserMethods>(
       type: Date,
       required: true,
     },
+    birthDay: {
+      type: Date,
+      required: true,
+    },
     role: {
       type: String,
       required: true,

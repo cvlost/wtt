@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Button, Grid, TextField } from '@mui/material';
+import { Button, Grid, InputAdornment, TextField } from '@mui/material';
+import ImageIcon from '@mui/icons-material/Image';
 
 interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -60,11 +61,18 @@ const FileInput: React.FC<Props> = ({
             required={required}
             onClick={activateInput}
             error={error}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position={'start'}>
+                  <ImageIcon />
+                </InputAdornment>
+              ),
+            }}
             sx={{ pointerEvents: 'none' }}
           />
         </Grid>
         <Grid item>
-          <Button disabled={disabled} type="button" variant="contained" onClick={activateInput} size="large">
+          <Button disabled={disabled} type="button" variant="contained" onClick={activateInput} size="small">
             Upload
           </Button>
         </Grid>

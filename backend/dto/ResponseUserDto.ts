@@ -11,6 +11,7 @@ class ResponseUserDto implements IResponseUserDto {
   readonly avatar: string | null;
   readonly employed: Date;
   readonly role: 'admin' | 'user';
+  readonly birthDay: Date;
 
   constructor(user: UserDocument) {
     this.id = user._id.toString();
@@ -22,6 +23,7 @@ class ResponseUserDto implements IResponseUserDto {
     this.employed = user.employed;
     this.avatar = user.avatar;
     this.role = user.role;
+    this.birthDay = user.birthDay;
   }
 }
 

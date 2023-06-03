@@ -1,6 +1,7 @@
 import Report from '../models/Report';
 import { Types } from 'mongoose';
 import { ICreateReportDto } from '../types';
+import User from '../models/User';
 
 export const getAll = async (user?: string) => {
   return Report.aggregate([
@@ -47,7 +48,87 @@ export const getAll = async (user?: string) => {
 };
 
 export const getByDate = async (user: string, dateStr: string) => {
-  return Report.find({ $and: [{ user }, { dateStr }] });
+  const report = await Report.findOne({ user, dateStr });
+
+  if (!report)
+    return {
+      dateStr,
+      user: await User.findById(user),
+      totalTime: 0,
+      reports: [],
+    };
+
+  const [dayReport] = await Report.aggregate([
+    { $match: { $and: [{ user: new Types.ObjectId(user) }, { dateStr }] } },
+    {
+      $project: {
+        user: 1,
+        dateStr: 1,
+        startedAt: 1,
+        finishedAt: 1,
+        title: 1,
+        description: 1,
+        minutes: {
+          $range: ['$startedAtMinutes', '$finishedAtMinutes'],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$user',
+        _temp: {
+          $push: '$minutes',
+        },
+        dateStr: {
+          $first: '$dateStr',
+        },
+        reports: {
+          $push: {
+            id: '$_id',
+            startedAt: '$startedAt',
+            finishedAt: '$finishedAt',
+            title: '$title',
+            description: '$description',
+          },
+        },
+        totalTime: {
+          $sum: {
+            $subtract: ['$finishedAt', '$startedAt'],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        _id: 0,
+        dateStr: 1,
+        user: '$user',
+        reports: 1,
+        totalTime: {
+          $size: {
+            $reduce: {
+              input: '$_temp',
+              initialValue: [],
+              in: {
+                $setUnion: ['$$value', '$$this'],
+              },
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  return dayReport;
 };
 
 export const getOne = async (_id: string) => {

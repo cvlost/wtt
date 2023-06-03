@@ -25,6 +25,7 @@ const run = async () => {
     avatar: 'images/admin.jpg',
     employed: new Date('2020-10-10'),
     role: 'admin',
+    birthDay: new Date('1986-10-10'),
   });
 
   const [user1, user2, user3] = await User.create(
@@ -37,6 +38,7 @@ const run = async () => {
       position: 'manager',
       avatar: 'images/manager1.jpg',
       employed: new Date('2020-12-14'),
+      birthDay: new Date('1996-08-08'),
     },
     {
       firstName: 'Daniel',
@@ -47,6 +49,7 @@ const run = async () => {
       position: 'manager',
       avatar: 'images/manager2.jpg',
       employed: new Date('2021-03-01'),
+      birthDay: new Date('1990-12-12'),
     },
     {
       firstName: 'Will',
@@ -57,6 +60,7 @@ const run = async () => {
       position: 'employee',
       avatar: 'images/employee.jpg',
       employed: new Date('2022-05-23'),
+      birthDay: new Date('1991-09-11'),
     },
   );
 

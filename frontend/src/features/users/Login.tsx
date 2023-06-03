@@ -1,17 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ILoginMutation } from '../../types';
-import { Alert, Avatar, Box, Button, Container, Grid, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { resetAuthErrors, selectLoginError, selectLoginLoading } from './usersSlice';
 import { login } from './usersThunks';
+import EmailIcon from '@mui/icons-material/Email';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import KeyIcon from '@mui/icons-material/Key';
 
 const Login = () => {
   const dispatch = useAppDispatch();
   const error = useAppSelector(selectLoginError);
   const navigate = useNavigate();
   const loginLoading = useAppSelector(selectLoginLoading);
+  const [showPassword, setShowPassword] = React.useState(false);
   const [state, setState] = useState<ILoginMutation>({
     email: '',
     password: '',
@@ -22,6 +38,12 @@ const Login = () => {
       dispatch(resetAuthErrors());
     };
   }, [dispatch]);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
 
   const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -64,9 +86,17 @@ const Login = () => {
                 required
                 label="Email"
                 name="email"
+                type="email"
                 autoComplete="current-email"
                 value={state.email}
                 onChange={inputChangeHandler}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <EmailIcon />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -75,10 +105,24 @@ const Login = () => {
                 required
                 label="Password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 value={state.password}
                 onChange={inputChangeHandler}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <KeyIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position={'end'}>
+                      <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
           </Grid>

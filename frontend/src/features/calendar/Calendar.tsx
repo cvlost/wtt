@@ -6,8 +6,6 @@ import { Box, Chip, CircularProgress, Typography } from '@mui/material';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { DayCellContentArg, DayCellMountArg } from '@fullcalendar/core';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { getAllReports } from './calendarThunks';
-import { selectReportsList, selectReportsListLoading } from './calendarSlice';
 import dayjs from 'dayjs';
 import duration, { Duration } from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -16,6 +14,8 @@ import { selectOneUser, selectOneUserLoading, unsetOneUser } from '../users/user
 import { getOneUser } from '../users/usersThunks';
 import DoneIcon from '@mui/icons-material/Done';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { selectReportsSummaryList, selectReportsSummaryListLoading } from './calendarSlice';
+import { getAllDaysSummary } from './calendarThunks';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -25,8 +25,8 @@ const Calendar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const userId = useSearchParams()[0].get('user');
-  const reports = useAppSelector(selectReportsList);
-  const reportsLoading = useAppSelector(selectReportsListLoading);
+  const reportsSummary = useAppSelector(selectReportsSummaryList);
+  const reportsSummaryLoading = useAppSelector(selectReportsSummaryListLoading);
   const oneUser = useAppSelector(selectOneUser);
   const oneUserLoading = useAppSelector(selectOneUserLoading);
 
@@ -39,7 +39,7 @@ const Calendar = () => {
   };
 
   const dayCellContent = (arg: DayCellContentArg) => {
-    const match = reports.find((report) => dayjs(report.dateStr).isSame(arg.date, 'day'));
+    const match = reportsSummary.find((summary) => dayjs(summary.dateStr).isSame(arg.date, 'day'));
     let totalWorkTime: Duration;
     let formattedDuration = '';
 
@@ -93,12 +93,12 @@ const Calendar = () => {
     if (userId) dispatch(getOneUser(userId));
     else dispatch(unsetOneUser());
 
-    dispatch(getAllReports(location.search));
+    dispatch(getAllDaysSummary(location.search));
   }, [dispatch, location.search, userId]);
 
   return (
     <Box sx={{ p: 2 }}>
-      {reportsLoading ? (
+      {reportsSummaryLoading ? (
         <MainPreloader />
       ) : (
         <Box

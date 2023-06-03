@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Avatar, Box, Button, Card, Grid, IconButton, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, Chip, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getUsersList } from './usersThunks';
 import { selectUsersList, selectUsersListLoading } from './usersSlice';
@@ -51,12 +51,27 @@ const Users = () => {
                   </Grid>
                   <Grid item p={1}>
                     <Typography>{user.firstName + ' ' + user.lastName}</Typography>
-                    <IconButton onClick={() => navigate(`/profile/${user.id}`)}>
-                      <ContactsIcon />
-                    </IconButton>
-                    <IconButton onClick={() => navigate(`/calendar?user=${user.id}`)}>
-                      <CalendarMonthIcon />
-                    </IconButton>
+                    <Tooltip title="Profile" arrow>
+                      <IconButton onClick={() => navigate(`/profile/${user.id}`)}>
+                        <ContactsIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Calendar" arrow>
+                      <IconButton onClick={() => navigate(`/calendar?user=${user.id}`)}>
+                        <CalendarMonthIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item p={1}>
+                    <Chip
+                      variant="outlined"
+                      color="success"
+                      label={
+                        <>
+                          Total time <b>50 min</b>
+                        </>
+                      }
+                    />
                   </Grid>
                 </Grid>
               </Card>

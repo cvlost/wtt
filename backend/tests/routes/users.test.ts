@@ -18,6 +18,7 @@ const userCreateDto: ICreateUserDto = {
   avatar: '/some/avatar.jpg',
   phone: '+234-423-434',
   role: 'admin',
+  birthDay: new Date('2000-01-01').toISOString(),
   employed: new Date('2022-10-11').toISOString(),
 };
 

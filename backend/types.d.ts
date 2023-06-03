@@ -14,6 +14,7 @@ export interface IUser {
   position: 'director' | 'manager' | 'employee';
   avatar: string | null;
   employed: Date;
+  birthDay: Date;
   role: 'admin' | 'user';
 }
 
@@ -31,6 +32,7 @@ export interface ICreateUserDto {
   position: 'director' | 'manager' | 'employee';
   avatar: string | null;
   employed: string;
+  birthDay: string;
   role: 'admin' | 'user';
 }
 
@@ -43,6 +45,7 @@ export interface IResponseUserDto {
   position: 'director' | 'manager' | 'employee';
   avatar: string | null;
   employed: Date;
+  birthDay: Date;
   role: 'admin' | 'user';
 }
 

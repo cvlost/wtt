@@ -5,7 +5,7 @@ import { selectUser } from '../users/usersSlice';
 import { useParams } from 'react-router';
 import { IReportMutation } from '../../types';
 import { selectCreateReportLoading, selectOneReport, selectOneReportLoading } from './calendarSlice';
-import { createReport, getAllReportsByDay, getOneReport } from './calendarThunks';
+import { createReport, getOneDayReport, getOneReport } from './calendarThunks';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -45,13 +45,13 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
     event.preventDefault();
     await dispatch(createReport(state)).unwrap();
     closeModal();
-    await dispatch(getAllReportsByDay(id + location.search));
+    await dispatch(getOneDayReport(id + location.search));
   };
 
   useEffect(() => {
     if (editId) dispatch(getOneReport(editId));
-    if (oneReport) setState({ ...oneReport, user: user?.id });
-  }, [dispatch, editId, oneReport, user?.id]);
+    if (oneReport) setState({ ...oneReport, user: user?.id, dateStr });
+  }, [dateStr, dispatch, editId, oneReport, user?.id]);
 
   return (
     <Container component="main" maxWidth="xs">
