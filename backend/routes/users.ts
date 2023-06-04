@@ -11,5 +11,6 @@ usersRouter.post('/login', usersController.login);
 usersRouter.delete('/logout', usersController.logout);
 usersRouter.get('/refresh', usersController.refresh);
 usersRouter.get('/:id', auth, usersController.getOne);
+usersRouter.patch('/:id', auth, imagesUpload.single('avatar'), usersController.updateOne);
 
 export default usersRouter;

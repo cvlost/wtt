@@ -36,6 +36,19 @@ export interface ICreateUserDto {
   role: 'admin' | 'user';
 }
 
+export interface IUpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  email?: string;
+  phone?: string;
+  position?: 'director' | 'manager' | 'employee';
+  avatar?: string;
+  employed?: string;
+  birthDay?: string;
+  role?: 'admin' | 'user';
+}
+
 export interface IResponseUserDto {
   id: string;
   firstName: string;

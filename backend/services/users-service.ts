@@ -1,5 +1,5 @@
 import User from '../models/User';
-import { ICreateUserDto } from '../types';
+import { ICreateUserDto, IUpdateUserDto } from '../types';
 import { BadRequest } from '../errors/errors';
 import { Types } from 'mongoose';
 
@@ -22,6 +22,19 @@ export const create = async (dto: ICreateUserDto) => {
   if (candidate) throw new BadRequest('Email is already taken');
 
   return await User.create(dto);
+};
+
+export const updateOne = async (_id: String, dto: IUpdateUserDto) => {
+  console.log(dto);
+  const user = await User.findById(_id);
+
+  if (!user) throw new BadRequest('Cannot update non-existent user');
+
+  await User.updateOne({ _id }, dto);
+
+  if (dto.password) user.password = dto.password;
+
+  return user.save();
 };
 
 export const login = async (email: string, password: string) => {

@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
-import { Button, Grid, InputAdornment, TextField } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Avatar, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
 import ImageIcon from '@mui/icons-material/Image';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,13 +23,28 @@ const FileInput: React.FC<Props> = ({
   required = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const [selectedFile, setSelectedFile] = useState<Blob | MediaSource | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [filename, setFilename] = useState('');
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreview(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [selectedFile]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFilename(e.target.files[0].name);
+      setSelectedFile(e.target.files[0]);
     } else {
+      setSelectedFile(null);
       setFilename('');
     }
 
@@ -52,8 +68,19 @@ const FileInput: React.FC<Props> = ({
         ref={inputRef}
         accept={accept}
       />
-      <Grid container direction="row" spacing={2} alignItems="center" mb={2}>
-        <Grid item xs>
+      <Grid container>
+        <Grid
+          item
+          container
+          sx={{
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {preview && <Avatar src={preview} sx={{ height: '70px', width: '70px', boxShadow: 2, mb: 2 }} />}
+        </Grid>
+        <Grid item container alignItems="center" flexWrap="nowrap" xs={12}>
+          <ImageIcon sx={{ mr: 1 }} />
           <TextField
             label={label}
             value={filename}
@@ -62,19 +89,15 @@ const FileInput: React.FC<Props> = ({
             onClick={activateInput}
             error={error}
             InputProps={{
-              startAdornment: (
-                <InputAdornment position={'start'}>
-                  <ImageIcon />
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton edge="end" onClick={activateInput}>
+                    <FileUploadIcon />
+                  </IconButton>
                 </InputAdornment>
               ),
             }}
-            sx={{ pointerEvents: 'none' }}
           />
-        </Grid>
-        <Grid item>
-          <Button disabled={disabled} type="button" variant="contained" onClick={activateInput} size="small">
-            Upload
-          </Button>
         </Grid>
       </Grid>
     </>

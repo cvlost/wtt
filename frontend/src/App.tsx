@@ -59,6 +59,14 @@ function App() {
           }
         />
         <Route
+          path="/profile/:id/edit"
+          element={
+            <ProtectedRoute isAllowed={authorized}>
+              <Register edit />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/calendar"
           element={
             <ProtectedRoute isAllowed={authorized}>

@@ -80,7 +80,8 @@ const Login = () => {
         )}
         <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+              <EmailIcon sx={{ mr: 1 }} />
               <TextField
                 disabled={loginLoading}
                 required
@@ -90,16 +91,10 @@ const Login = () => {
                 autoComplete="current-email"
                 value={state.email}
                 onChange={inputChangeHandler}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <EmailIcon />
-                    </InputAdornment>
-                  ),
-                }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+              <KeyIcon sx={{ mr: 1 }} />
               <TextField
                 disabled={loginLoading}
                 required
@@ -110,11 +105,6 @@ const Login = () => {
                 value={state.password}
                 onChange={inputChangeHandler}
                 InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <KeyIcon />
-                    </InputAdornment>
-                  ),
                   endAdornment: (
                     <InputAdornment position={'end'}>
                       <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">

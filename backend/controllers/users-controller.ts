@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import * as usersService from '../services/users-service';
-import { ICreateUserDto, IUserLoginDto } from '../types';
+import { ICreateUserDto, IUpdateUserDto, IUserLoginDto } from '../types';
 import ResponseUserDto from '../dto/ResponseUserDto';
 import {
   checkTokenExistence,
@@ -34,19 +34,18 @@ export const getOne: RequestHandler = async (req, res, next) => {
 
 export const register: RequestHandler = async (req, res, next) => {
   const avatar = req.file ? req.file.filename : null;
-  const { firstName, lastName, password, email, employed, phone, position, role, birthDay } =
-    req.body as ICreateUserDto;
+  const body = req.body as ICreateUserDto;
   const dto: ICreateUserDto = {
-    firstName,
-    lastName,
-    password,
-    email,
-    employed,
-    phone,
-    position,
+    firstName: body.firstName,
+    lastName: body.lastName,
+    password: body.password,
+    email: body.email,
+    employed: body.employed,
+    phone: body.phone,
+    position: body.position,
+    role: body.role,
+    birthDay: body.birthDay,
     avatar,
-    role,
-    birthDay,
   };
 
   try {
@@ -96,6 +95,37 @@ export const logout: RequestHandler = async (req, res, next) => {
 
     return res.send(message);
   } catch (e) {
+    return next(e);
+  }
+};
+
+export const updateOne: RequestHandler = async (req, res, next) => {
+  const userId = req.params.id as string;
+  const avatar = req.file ? req.file.filename : undefined;
+  const body = req.body as IUpdateUserDto;
+  const dto: IUpdateUserDto = {
+    firstName: body.firstName,
+    lastName: body.lastName,
+    password: body.password,
+    email: body.email,
+    employed: body.employed,
+    phone: body.phone,
+    position: body.position,
+    role: body.role,
+    birthDay: body.birthDay,
+    avatar,
+  };
+
+  try {
+    const user = await usersService.updateOne(userId, dto);
+
+    return res.status(200).send({
+      user,
+      message: 'One user has been updated!',
+    });
+  } catch (e) {
+    if (e instanceof ServerError) return res.status(e.statusCode).send(e);
+    if (e instanceof Error.ValidationError) return res.status(400).send(e);
     return next(e);
   }
 };

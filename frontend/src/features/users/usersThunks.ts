@@ -99,3 +99,29 @@ export const getOneUser = createAsyncThunk<IUser, string, { state: RootState; di
     return await authRetry<IUser>(request, dispatch);
   },
 );
+
+type UpdateParams = { data: IRegisterMutation; id: string };
+
+export const updateOneUser = createAsyncThunk<
+  void,
+  UpdateParams,
+  { state: RootState; dispatch: AppDispatch; rejectValue: ValidationError }
+>('users/updateOne', async ({ id, data }, { dispatch, rejectWithValue }) => {
+  const request = async () => {
+    const updateForm = new FormData();
+
+    for (const [key, value] of Object.entries(data))
+      if (data[key as keyof IRegisterMutation]) updateForm.append(key, value);
+
+    await axiosApi.patch(`/users/${id}`, updateForm);
+  };
+
+  try {
+    return await authRetry(request, dispatch);
+  } catch (e) {
+    if (isAxiosError(e) && e.response && e.response.status === 400)
+      return rejectWithValue(e.response.data as ValidationError);
+
+    throw e;
+  }
+});

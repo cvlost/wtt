@@ -123,7 +123,7 @@ const UserPage = () => {
                   <Typography>Employed: {dayjs(oneUser.employed).format('D MMMM YYYY')}</Typography>
                 </ListItem>
               </List>
-              <Button>Edit profile</Button>
+              <Button onClick={() => navigate(`/profile/${oneUser.id}/edit`)}>Edit profile</Button>
             </Grid>
           </Grid>
         </>

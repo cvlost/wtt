@@ -15,14 +15,21 @@ import React, { useEffect, useState } from 'react';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { resetAuthErrors, selectRegisterError, selectRegisterLoading, selectUserAuthorized } from './usersSlice';
-import { register } from './usersThunks';
+import {
+  resetAuthErrors,
+  selectOneUser,
+  selectOneUserLoading,
+  selectRegisterError,
+  selectRegisterLoading,
+  selectUserAuthorized,
+} from './usersSlice';
+import { getOneUser, register, updateOneUser } from './usersThunks';
 import { IRegisterMutation } from '../../types';
 import FileInput from '../../components/FileInput/FileInput';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -31,26 +38,51 @@ import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BadgeIcon from '@mui/icons-material/Badge';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
+import CakeIcon from '@mui/icons-material/Cake';
+import { useParams } from 'react-router';
+import MainPreloader from '../../components/Preloaders/MainPreloader';
 
-const Register = () => {
+interface Props {
+  edit?: boolean;
+}
+
+const initialFields: IRegisterMutation = {
+  email: '',
+  password: '',
+  firstName: '',
+  lastName: '',
+  avatar: null,
+  phone: '',
+  employed: null,
+  birthDay: null,
+  position: '',
+  role: '',
+};
+
+const Register: React.FC<Props> = ({ edit = false }) => {
   const dispatch = useAppDispatch();
   const error = useAppSelector(selectRegisterError);
   const authorized = useAppSelector(selectUserAuthorized);
+  const oneUser = useAppSelector(selectOneUser);
+  const oneUserLoading = useAppSelector(selectOneUserLoading);
+  const userId = useParams().id as string;
   const navigate = useNavigate();
   const registerLoading = useAppSelector(selectRegisterLoading);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [value, setValue] = useState<Dayjs | null>(null);
-  const [state, setState] = useState<IRegisterMutation>({
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    avatar: null,
-    phone: '',
-    employed: null,
-    position: '',
-    role: '',
-  });
+  const [state, setState] = useState<IRegisterMutation>(initialFields);
+
+  useEffect(() => {
+    if (edit) {
+      dispatch(getOneUser(userId));
+    }
+  }, [dispatch, edit, userId]);
+
+  useEffect(() => {
+    if (edit && oneUser) {
+      setState({ ...oneUser, password: '', avatar: null });
+    }
+  }, [edit, oneUser]);
 
   useEffect(() => {
     return () => {
@@ -80,7 +112,10 @@ const Register = () => {
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    await dispatch(register({ ...state, employed: value ? value.toISOString() : null })).unwrap();
+    edit
+      ? await dispatch(updateOneUser({ id: userId, data: state })).unwrap()
+      : await dispatch(register(state)).unwrap();
+
     navigate('/users');
   };
 
@@ -98,7 +133,7 @@ const Register = () => {
     <Container component="main" maxWidth="xs">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 4,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -108,198 +143,209 @@ const Register = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          New user registration
+          {edit ? 'Edit user account' : 'Create new account'}
         </Typography>
-        <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                disabled={registerLoading}
-                required
-                label="E-mail"
-                name="email"
-                autoComplete="new-email"
-                type="email"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <EmailIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                value={state.email}
-                onChange={inputChangeHandler}
-                error={Boolean(getFieldError('email'))}
-                helperText={getFieldError('email')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                disabled={registerLoading}
-                required
-                name="password"
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={state.password}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <KeyIcon />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position={'end'}>
-                      <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={inputChangeHandler}
-                error={Boolean(getFieldError('password'))}
-                helperText={getFieldError('password')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                disabled={registerLoading}
-                required
-                label="Firstname"
-                name="firstName"
-                autoComplete="off"
-                value={state.firstName}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <PersonIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={inputChangeHandler}
-                error={Boolean(getFieldError('firstName'))}
-                helperText={getFieldError('firstName')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                disabled={registerLoading}
-                required
-                label="Lastname"
-                name="lastName"
-                autoComplete="off"
-                value={state.lastName}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <PersonIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={inputChangeHandler}
-                error={Boolean(getFieldError('lastName'))}
-                helperText={getFieldError('lastName')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                disabled={registerLoading}
-                required
-                label="Phone number"
-                type="tel"
-                name="phone"
-                autoComplete="off"
-                value={state.phone}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <LocalPhoneIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={inputChangeHandler}
-                error={Boolean(getFieldError('phone'))}
-                helperText={getFieldError('phone')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                select
-                required
-                value={state.position}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <BadgeIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                name="position"
-                onChange={inputChangeHandler}
-                label="Position"
-              >
-                <MenuItem value="" disabled>
-                  Select position
-                </MenuItem>
-                <MenuItem value="director">Director</MenuItem>
-                <MenuItem value="manager">Manager</MenuItem>
-                <MenuItem value="employee">Employee</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                select
-                required
-                value={state.role}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <AdminPanelSettingsIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                name="role"
-                onChange={inputChangeHandler}
-                label="Role"
-              >
-                <MenuItem value="" disabled>
-                  Select role
-                </MenuItem>
-                <MenuItem value="admin">Administrator</MenuItem>
-                <MenuItem value="user">User</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Employed at"
-                  value={value}
-                  slotProps={{
-                    inputAdornment: {
-                      position: 'start',
-                    },
-
-                    textField: {
-                      required: true,
-                    },
-                  }}
-                  onChange={(newValue) => {
-                    setValue(newValue);
-                  }}
+        {edit && oneUserLoading ? (
+          <MainPreloader />
+        ) : (
+          <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography fontWeight="bold" fontSize="0.8em">
+                  Credentials
+                </Typography>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <EmailIcon sx={{ mr: 1 }} />
+                <TextField
+                  disabled={registerLoading}
+                  required
+                  label="E-mail"
+                  name="email"
+                  autoComplete="new-email"
+                  type="email"
+                  value={state.email}
+                  onChange={inputChangeHandler}
+                  error={Boolean(getFieldError('email'))}
+                  helperText={getFieldError('email')}
                 />
-              </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <KeyIcon sx={{ mr: 1 }} />
+                <TextField
+                  disabled={registerLoading}
+                  label={!edit ? 'Password' : `${state.password === '' ? 'Leave Password Unchanged' : 'New Password'}`}
+                  required={!edit}
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={state.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position={'end'}>
+                        <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  onChange={inputChangeHandler}
+                  error={Boolean(getFieldError('password'))}
+                  helperText={getFieldError('password')}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography fontWeight="bold" fontSize="0.8em">
+                  Personal data
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <FileInput
+                  onChange={handleFileChange}
+                  name="avatar"
+                  disabled={registerLoading}
+                  label={!edit ? 'Avatar' : `${state.avatar === null ? 'Leave Avatar Unchanged' : 'New Avatar'}`}
+                  accept="image/*"
+                />
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <PersonIcon sx={{ mr: 1 }} />
+                <TextField
+                  disabled={registerLoading}
+                  required
+                  label="Firstname"
+                  name="firstName"
+                  autoComplete="off"
+                  value={state.firstName}
+                  onChange={inputChangeHandler}
+                  error={Boolean(getFieldError('firstName'))}
+                  helperText={getFieldError('firstName')}
+                />
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <PersonIcon sx={{ mr: 1 }} />
+                <TextField
+                  disabled={registerLoading}
+                  required
+                  label="Lastname"
+                  name="lastName"
+                  autoComplete="off"
+                  value={state.lastName}
+                  onChange={inputChangeHandler}
+                  error={Boolean(getFieldError('lastName'))}
+                  helperText={getFieldError('lastName')}
+                />
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <CakeIcon sx={{ mr: 1 }} />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Birthday"
+                    value={state.birthDay ? dayjs(state.birthDay) : null}
+                    slotProps={{
+                      textField: {
+                        required: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      const birthDay = newValue ? newValue.toISOString() : null;
+                      setState((prev) => ({ ...prev, birthDay }));
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography fontWeight="bold" fontSize="0.8em">
+                  Contacts
+                </Typography>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <LocalPhoneIcon sx={{ mr: 1 }} />
+                <TextField
+                  disabled={registerLoading}
+                  required
+                  label="Phone number"
+                  type="tel"
+                  name="phone"
+                  autoComplete="off"
+                  value={state.phone}
+                  onChange={inputChangeHandler}
+                  error={Boolean(getFieldError('phone'))}
+                  helperText={getFieldError('phone')}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography fontWeight="bold" fontSize="0.8em">
+                  Company
+                </Typography>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <WorkHistoryIcon sx={{ mr: 1 }} />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Employed at"
+                    value={state.employed ? dayjs(state.employed) : null}
+                    slotProps={{
+                      textField: {
+                        required: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      const employed = newValue ? newValue.toISOString() : null;
+                      setState((prev) => ({ ...prev, employed }));
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <BadgeIcon sx={{ mr: 1 }} />
+                <TextField
+                  select
+                  required
+                  value={state.position}
+                  name="position"
+                  onChange={inputChangeHandler}
+                  label="Position"
+                >
+                  <MenuItem value="" disabled>
+                    Select position
+                  </MenuItem>
+                  <MenuItem value="director">Director</MenuItem>
+                  <MenuItem value="manager">Manager</MenuItem>
+                  <MenuItem value="employee">Employee</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                <TextField select required value={state.role} name="role" onChange={inputChangeHandler} label="Role">
+                  <MenuItem value="" disabled>
+                    Select role
+                  </MenuItem>
+                  <MenuItem value="admin">Administrator</MenuItem>
+                  <MenuItem value="user">User</MenuItem>
+                </TextField>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <FileInput onChange={handleFileChange} name="avatar" label="Avatar" accept="image/*" required />
-            </Grid>
-          </Grid>
-          <Button disabled={registerLoading} type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Register
-          </Button>
-        </Box>
+            <Button
+              disabled={registerLoading || oneUserLoading}
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              {edit ? 'Edit' : 'Create'}
+            </Button>
+          </Box>
+        )}
       </Box>
     </Container>
   );

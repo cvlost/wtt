@@ -47,6 +47,7 @@ export interface IRegisterMutation {
   position: string;
   avatar: File | null;
   employed: string | null;
+  birthDay: string | null;
   role: string;
 }
 
