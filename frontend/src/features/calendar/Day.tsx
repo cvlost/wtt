@@ -5,8 +5,10 @@ import {
   AccordionDetails,
   AccordionSummary,
   Alert,
+  Avatar,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogContent,
   Grid,
@@ -17,21 +19,26 @@ import ReportForm from './ReportForm';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectOneDayReport, selectOneDayReportLoading } from './calendarSlice';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs, { Dayjs } from 'dayjs';
 import { getOneDayReport } from './calendarThunks';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import { selectOneUser } from '../users/usersSlice';
+import { getOneUser } from '../users/usersThunks';
+import { apiBaseUrl } from '../../config';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
 const Day = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const dayReport = useAppSelector(selectOneDayReport);
   const dayReportLoading = useAppSelector(selectOneDayReportLoading);
+  const oneUser = useAppSelector(selectOneUser);
   const location = useLocation();
   const id = useParams().id as string;
   const userId = useSearchParams()[0].get('user');
@@ -40,6 +47,12 @@ const Day = () => {
   useEffect(() => {
     dispatch(getOneDayReport(id + location.search));
   }, [dispatch, id, location.search]);
+
+  useEffect(() => {
+    if (dayReport && userId) {
+      dispatch(getOneUser(userId));
+    }
+  }, [dayReport, dispatch, userId]);
 
   const isAllowedDate = () => {
     if (!dayReport) return false;
@@ -66,15 +79,31 @@ const Day = () => {
     <Box p={2}>
       <Grid container justifyContent="space-between" alignItems="center" mb={2}>
         <Grid item>
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="center" mb={2}>
             <PendingActionsIcon sx={{ mr: 1 }} />
-            <Typography variant={'h5'} component={'h5'}>
+            <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
               Reports -{' '}
-              <Typography component="span" variant={'h5'} fontWeight="bold">
+              <Typography component="span" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
                 {dayjs(id).format('D MMMM YYYY')}
               </Typography>
             </Typography>
           </Box>
+          {oneUser && (
+            <Chip
+              onClick={() => navigate(`/profile/${oneUser.id}`)}
+              sx={{
+                '&:hover': {
+                  cursor: 'pointer',
+                  bgcolor: '#f3f3f3',
+                },
+              }}
+              avatar={<Avatar alt={oneUser.firstName} src={`${apiBaseUrl}/${oneUser.avatar}`} />}
+              label={
+                <Typography fontWeight="bold" fontSize="0.9em">{`${oneUser.firstName} ${oneUser.lastName}`}</Typography>
+              }
+              variant="outlined"
+            />
+          )}
         </Grid>
         <Grid item>
           {!userId && (

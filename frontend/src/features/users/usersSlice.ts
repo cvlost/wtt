@@ -113,6 +113,7 @@ const usersSlice = createSlice({
     });
 
     builder.addCase(getOneUser.pending, (state) => {
+      state.oneUser = null;
       state.oneUserLoading = true;
     });
     builder.addCase(getOneUser.fulfilled, (state, { payload }) => {

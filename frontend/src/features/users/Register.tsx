@@ -12,7 +12,6 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -42,6 +41,7 @@ import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import CakeIcon from '@mui/icons-material/Cake';
 import { useParams } from 'react-router';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
+import { apiBaseUrl } from '../../config';
 
 interface Props {
   edit?: boolean;
@@ -139,10 +139,11 @@ const Register: React.FC<Props> = ({ edit = false }) => {
           alignItems: 'center',
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
+        <Avatar
+          sx={{ m: 2, width: '70px', height: '70px' }}
+          src={edit && oneUser?.avatar ? `${apiBaseUrl}/${oneUser.avatar}` : undefined}
+        />
+        <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
           {edit ? 'Edit user account' : 'Create new account'}
         </Typography>
         {edit && oneUserLoading ? (

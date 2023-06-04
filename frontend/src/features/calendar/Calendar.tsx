@@ -113,7 +113,7 @@ const Calendar = () => {
             },
           }}
         >
-          <Typography variant="h5">
+          <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
             {userId && oneUserLoading ? (
               <CircularProgress />
             ) : oneUser ? (

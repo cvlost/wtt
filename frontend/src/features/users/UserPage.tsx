@@ -1,7 +1,19 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { useParams } from 'react-router';
-import { Alert, Badge, Box, Button, Grid, IconButton, List, ListItem, ListItemIcon, Typography } from '@mui/material';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  Typography,
+} from '@mui/material';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { selectOneUser, selectOneUserLoading } from './usersSlice';
 import { getOneUser } from './usersThunks';
@@ -17,6 +29,7 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import EmailIcon from '@mui/icons-material/Email';
 import EditIcon from '@mui/icons-material/Edit';
 import CakeIcon from '@mui/icons-material/Cake';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const UserPage = () => {
   const dispatch = useAppDispatch();
@@ -35,15 +48,21 @@ const UserPage = () => {
         <MainPreloader />
       ) : oneUser ? (
         <>
-          <Typography variant="h5">Profile</Typography>
+          <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }} mb={2}>
+            Profile
+          </Typography>
           <Grid container>
-            <Grid item xs={4} p={2}>
+            <Grid item xs={4} p={2} boxShadow="0 0 0.5em gainsboro" alignSelf="flex-start">
               <Box>
                 <Badge
                   overlap="circular"
                   anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                   badgeContent={
-                    <IconButton size="small" sx={{ bgcolor: 'rgba(0,0,0,.4)' }}>
+                    <IconButton
+                      size="small"
+                      sx={{ bgcolor: 'rgba(0,0,0,.4)' }}
+                      onClick={() => navigate(`/profile/${oneUser.id}/edit`)}
+                    >
                       <EditIcon sx={{ color: 'white' }} />
                     </IconButton>
                   }
@@ -57,14 +76,26 @@ const UserPage = () => {
                 <Typography color="gray" textAlign="center" fontWeight="bold" sx={{ textTransform: 'capitalize' }}>
                   {oneUser.position}
                 </Typography>
-                <Button onClick={() => navigate(`/calendar?user=${oneUser.id}`)}>
-                  <CalendarMonthIcon sx={{ mr: 1 }} /> Activity
-                </Button>
+                <Grid container>
+                  <Grid item xs={12}>
+                    <Button onClick={() => navigate(`/calendar?user=${oneUser.id}`)} startIcon={<CalendarMonthIcon />}>
+                      Activity
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider sx={{ my: 1 }} />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button startIcon={<SettingsIcon />} onClick={() => navigate(`/profile/${oneUser.id}/edit`)}>
+                      Edit profile
+                    </Button>
+                  </Grid>
+                </Grid>
               </Box>
             </Grid>
             <Grid item xs={8} p={2}>
               <Typography fontWeight="bold" fontSize="0.8em">
-                General info
+                Personal data
               </Typography>
               <List dense>
                 <ListItem>
@@ -81,18 +112,6 @@ const UserPage = () => {
                     <CakeIcon />
                   </ListItemIcon>
                   <Typography>Birthday: {dayjs(oneUser.birthDay).format('D MMMM YYYY')}</Typography>
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <BadgeIcon />
-                  </ListItemIcon>
-                  <Typography>Position: {oneUser.position}</Typography>
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <AdminPanelSettingsIcon />
-                  </ListItemIcon>
-                  <Typography>Role: {oneUser.role}</Typography>
                 </ListItem>
               </List>
               <Typography fontWeight="bold" fontSize="0.8em">
@@ -122,8 +141,19 @@ const UserPage = () => {
                   </ListItemIcon>
                   <Typography>Employed: {dayjs(oneUser.employed).format('D MMMM YYYY')}</Typography>
                 </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <BadgeIcon />
+                  </ListItemIcon>
+                  <Typography>Position: {oneUser.position}</Typography>
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <AdminPanelSettingsIcon />
+                  </ListItemIcon>
+                  <Typography>Role: {oneUser.role}</Typography>
+                </ListItem>
               </List>
-              <Button onClick={() => navigate(`/profile/${oneUser.id}/edit`)}>Edit profile</Button>
             </Grid>
           </Grid>
         </>

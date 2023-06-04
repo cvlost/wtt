@@ -24,7 +24,7 @@ const Users = () => {
     <Box p={2}>
       <Grid container justifyContent="space-between" alignItems="center" mb={2}>
         <Grid item>
-          <Typography variant={'h5'} component={'h5'}>
+          <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
             Users
           </Typography>
         </Grid>

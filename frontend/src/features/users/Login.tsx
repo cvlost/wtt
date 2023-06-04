@@ -13,7 +13,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { resetAuthErrors, selectLoginError, selectLoginLoading } from './usersSlice';
 import { login } from './usersThunks';
@@ -67,10 +66,8 @@ const Login = () => {
           alignItems: 'center',
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOpenIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
+        <Avatar sx={{ m: 2, width: '70px', height: '70px' }} />
+        <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
           Sign in
         </Typography>
         {error && (
