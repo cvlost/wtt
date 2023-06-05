@@ -24,8 +24,7 @@ export const create = async (dto: ICreateUserDto) => {
   return await User.create(dto);
 };
 
-export const updateOne = async (_id: String, dto: IUpdateUserDto) => {
-  console.log(dto);
+export const updateOne = async (_id: string, dto: IUpdateUserDto) => {
   const user = await User.findById(_id);
 
   if (!user) throw new BadRequest('Cannot update non-existent user');

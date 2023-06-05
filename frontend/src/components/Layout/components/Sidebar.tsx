@@ -41,7 +41,7 @@ const Sidebar = () => {
             height: '3em',
             transform: 'rotate(45deg)',
             width: '3em',
-            bgcolor: 'white',
+            bgcolor: '#f3f3f3',
             right: '-40px',
           },
           '& .MuiMenuItem-root::before': {
@@ -50,7 +50,7 @@ const Sidebar = () => {
             height: '3em',
             transform: 'rotate(45deg)',
             width: '3em',
-            bgcolor: 'white',
+            bgcolor: '#f3f3f3',
             right: '-60px',
             transition: 'right .2s',
           },

@@ -26,7 +26,11 @@ const initialState: CalendarState = {
 const calendarSlice = createSlice({
   name: 'calendar',
   initialState,
-  reducers: {},
+  reducers: {
+    unsetOneReport: (state) => {
+      state.oneReport = null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getAllDaysSummary.pending, (state) => {
       state.reportsSummaryListLoading = true;
@@ -74,6 +78,7 @@ const calendarSlice = createSlice({
 });
 
 export const calendarReducer = calendarSlice.reducer;
+export const { unsetOneReport } = calendarSlice.actions;
 
 export const selectReportsSummaryList = (state: RootState) => state.calendar.reportsSummaryList;
 export const selectReportsSummaryListLoading = (state: RootState) => state.calendar.reportsSummaryListLoading;

@@ -78,6 +78,7 @@ export interface IReport {
   startedAtMinutes: number;
   finishedAt: Date;
   finishedAtMinutes: number;
+  timeSpent: number;
   title: string;
   description: string;
 }

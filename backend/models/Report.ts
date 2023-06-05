@@ -17,6 +17,7 @@ const ReportSchema = new Schema<IReport>(
     startedAtMinutes: Number,
     finishedAt: Date,
     finishedAtMinutes: Number,
+    timeSpent: Number,
     title: {
       type: String,
       required: true,
@@ -31,8 +32,13 @@ const ReportSchema = new Schema<IReport>(
 );
 
 ReportSchema.pre('save', function (next) {
-  this.startedAtMinutes = Math.round(this.startedAt.getTime() / 60_000);
-  this.finishedAtMinutes = Math.round(this.finishedAt.getTime() / 60_000);
+  if (this.isNew || this.isModified('startedAt') || this.isModified('finishedAt')) {
+    this.startedAtMinutes = Math.round(this.startedAt.getTime() / 60_000);
+    this.finishedAtMinutes = Math.round(this.finishedAt.getTime() / 60_000);
+    this.timeSpent = this.finishedAtMinutes - this.startedAtMinutes;
+    return next();
+  }
+
   return next();
 });
 

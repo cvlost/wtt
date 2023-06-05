@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Container, Grid, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Container, Grid, InputAdornment, TextField, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectUser } from '../users/usersSlice';
 import { useParams } from 'react-router';
 import { IReportMutation } from '../../types';
 import { selectCreateReportLoading, selectOneReport, selectOneReportLoading } from './calendarSlice';
-import { createReport, getOneDayReport, getOneReport } from './calendarThunks';
+import { createReport, getOneDayReport, getOneReport, updateOneReport } from './calendarThunks';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useLocation } from 'react-router-dom';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import TitleIcon from '@mui/icons-material/Title';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import { MobileTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
 interface Props {
   editId?: string;
@@ -43,14 +47,25 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
 
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-    await dispatch(createReport(state)).unwrap();
+    editId && oneReport
+      ? await dispatch(
+          updateOneReport({
+            id: oneReport.id,
+            report: state,
+          }),
+        ).unwrap()
+      : await dispatch(createReport(state)).unwrap();
+
     closeModal();
     await dispatch(getOneDayReport(id + location.search));
   };
 
   useEffect(() => {
     if (editId) dispatch(getOneReport(editId));
-    if (oneReport) setState({ ...oneReport, user: user?.id, dateStr });
+  }, [dispatch, editId]);
+
+  useEffect(() => {
+    if (oneReport && editId) setState({ ...oneReport, user: user?.id, dateStr });
   }, [dateStr, dispatch, editId, oneReport, user?.id]);
 
   return (
@@ -62,7 +77,10 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
           alignItems: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
+        <Avatar sx={{ m: 2, width: '70px', height: '70px' }}>
+          <PendingActionsIcon />
+        </Avatar>
+        <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
           {editId ? 'Edit report' : 'New report'}
         </Typography>
         <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
@@ -76,6 +94,13 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                 autoComplete="off"
                 value={state.title}
                 onChange={inputChangeHandler}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position={'start'}>
+                      <TitleIcon sx={{ mr: 1 }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -83,7 +108,7 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                 disabled={anyLoading}
                 required
                 multiline
-                rows={4}
+                rows={5}
                 label="Description"
                 name="description"
                 type="text"
@@ -92,42 +117,47 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                 onChange={inputChangeHandler}
               />
             </Grid>
-            <Grid item xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  onError={() => {
-                    setState((prev) => ({ ...prev, startedAt: null, finishedAt: null }));
-                  }}
-                  label="Started"
-                  ampm={false}
-                  format="HH:mm"
-                  timeSteps={{ hours: 1, minutes: 1 }}
-                  maxTime={state.finishedAt ? state.finishedAt : undefined}
-                  value={state.startedAt}
-                  onChange={(newValue) => {
-                    setState((prev) => ({ ...prev, startedAt: newValue }));
-                  }}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  onError={() => {
-                    setState((prev) => ({ ...prev, startedAt: null, finishedAt: null }));
-                  }}
-                  disabled={!state.startedAt}
-                  label="Finished"
-                  ampm={false}
-                  format="HH:mm"
-                  timeSteps={{ hours: 1, minutes: 1 }}
-                  minTime={state.startedAt ? state.startedAt : undefined}
-                  value={state.finishedAt}
-                  onChange={(newValue) => {
-                    setState((prev) => ({ ...prev, finishedAt: newValue }));
-                  }}
-                />
-              </LocalizationProvider>
+            <Grid item xs={12} container spacing={1} flexWrap="nowrap" alignItems="center">
+              <Grid item>
+                <AccessTimeIcon />
+              </Grid>
+              <Grid item>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <MobileTimePicker
+                    onError={() => {
+                      setState((prev) => ({ ...prev, startedAt: null, finishedAt: null }));
+                    }}
+                    label="Started"
+                    ampm={false}
+                    format="HH:mm"
+                    maxTime={state.finishedAt ? dayjs(state.finishedAt) : undefined}
+                    value={state.startedAt ? dayjs(state.startedAt) : null}
+                    onChange={(newValue) => {
+                      const startedAt = newValue ? newValue.toISOString() : null;
+                      setState((prev) => ({ ...prev, startedAt }));
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <MobileTimePicker
+                    onError={() => {
+                      setState((prev) => ({ ...prev, startedAt: null, finishedAt: null }));
+                    }}
+                    disabled={!state.startedAt}
+                    label="Finished"
+                    ampm={false}
+                    format="HH:mm"
+                    minTime={state.startedAt ? dayjs(state.startedAt) : undefined}
+                    value={state.finishedAt ? dayjs(state.finishedAt) : null}
+                    onChange={(newValue) => {
+                      const finishedAt = newValue ? newValue.toISOString() : null;
+                      setState((prev) => ({ ...prev, finishedAt }));
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
             </Grid>
           </Grid>
           <Button disabled={anyLoading} type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

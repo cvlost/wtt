@@ -80,3 +80,24 @@ export const getOneDayReport = createAsyncThunk<IDayReport, string, { state: Roo
     return await authRetry<IDayReport>(request, dispatch);
   },
 );
+
+type UpdateParams = { report: IReportMutation; id: string };
+
+export const updateOneReport = createAsyncThunk<
+  void,
+  UpdateParams,
+  { state: RootState; dispatch: AppDispatch; rejectValue: ValidationError }
+>('calendar/updateOneReport', async ({ id, report }, { dispatch, rejectWithValue }) => {
+  const request = async () => {
+    await axiosApi.patch(`/reports/${id}`, report);
+  };
+
+  try {
+    return await authRetry<void>(request, dispatch);
+  } catch (e) {
+    if (isAxiosError(e) && e.response && e.response.status === 400)
+      return rejectWithValue(e.response.data as ValidationError);
+
+    throw e;
+  }
+});

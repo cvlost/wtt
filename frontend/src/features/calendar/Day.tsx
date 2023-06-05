@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import {
   Accordion,
+  AccordionActions,
   AccordionDetails,
   AccordionSummary,
   Alert,
@@ -11,6 +12,7 @@ import {
   Chip,
   Dialog,
   DialogContent,
+  Divider,
   Grid,
   Typography,
 } from '@mui/material';
@@ -29,9 +31,30 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { selectOneUser } from '../users/usersSlice';
 import { getOneUser } from '../users/usersThunks';
 import { apiBaseUrl } from '../../config';
+import DoneIcon from '@mui/icons-material/Done';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import FlagIcon from '@mui/icons-material/Flag';
+import CallMadeIcon from '@mui/icons-material/CallMade';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
+
+const getFormattedTime = (totalTime: number | undefined | null) => {
+  if (!(typeof totalTime === 'number')) return '';
+
+  let formattedDuration = '';
+  const totalWorkTime = dayjs.duration(totalTime, 'minutes');
+  const hours = totalWorkTime.hours();
+  const minutes = totalWorkTime.minutes();
+
+  if (hours > 0) formattedDuration += `${hours} h`;
+  if (minutes > 0 || hours === 0) {
+    if (formattedDuration !== '') formattedDuration += ' ';
+    formattedDuration += `${minutes} min`;
+  }
+
+  return formattedDuration;
+};
 
 const Day = () => {
   const navigate = useNavigate();
@@ -43,6 +66,7 @@ const Day = () => {
   const id = useParams().id as string;
   const userId = useSearchParams()[0].get('user');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState('');
 
   useEffect(() => {
     dispatch(getOneDayReport(id + location.search));
@@ -89,20 +113,43 @@ const Day = () => {
             </Typography>
           </Box>
           {oneUser && (
-            <Chip
-              onClick={() => navigate(`/profile/${oneUser.id}`)}
-              sx={{
-                '&:hover': {
-                  cursor: 'pointer',
-                  bgcolor: '#f3f3f3',
-                },
-              }}
-              avatar={<Avatar alt={oneUser.firstName} src={`${apiBaseUrl}/${oneUser.avatar}`} />}
-              label={
-                <Typography fontWeight="bold" fontSize="0.9em">{`${oneUser.firstName} ${oneUser.lastName}`}</Typography>
-              }
-              variant="outlined"
-            />
+            <Box>
+              <Chip
+                onClick={() => navigate(`/profile/${oneUser.id}`)}
+                sx={{
+                  '&:hover': {
+                    cursor: 'pointer',
+                    bgcolor: '#f3f3f3',
+                  },
+                }}
+                avatar={<Avatar alt={oneUser.firstName} src={`${apiBaseUrl}/${oneUser.avatar}`} />}
+                label={
+                  <Typography
+                    fontWeight="bold"
+                    fontSize="0.9em"
+                  >{`${oneUser.firstName} ${oneUser.lastName}`}</Typography>
+                }
+                variant="outlined"
+              />
+              <Chip
+                avatar={<AccessTimeIcon />}
+                label={
+                  <Typography fontWeight="bold" fontSize="0.9em">{`${getFormattedTime(
+                    dayReport?.totalTime,
+                  )}`}</Typography>
+                }
+                variant="outlined"
+              />
+              <Chip
+                avatar={<DoneIcon />}
+                label={
+                  <Typography fontWeight="bold" fontSize="0.9em">{`${dayReport?.reports.length} report${
+                    dayReport?.reports.length === 1 ? '' : 's'
+                  }`}</Typography>
+                }
+                variant="outlined"
+              />
+            </Box>
           )}
         </Grid>
         <Grid item>
@@ -112,7 +159,10 @@ const Day = () => {
               variant="contained"
               size="small"
               startIcon={<AddIcon />}
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsModalOpen(true);
+                setEditId('');
+              }}
             >
               Report
             </Button>
@@ -125,7 +175,7 @@ const Day = () => {
           <MainPreloader />
         ) : dayReport?.reports?.length ? (
           <Box>
-            {dayReport.reports.map((report) => {
+            {dayReport.reports.map((report, index) => {
               const start = dayjs(report.startedAt);
               const finish = dayjs(report.finishedAt);
               const formattedStart = start.format('HH:mm');
@@ -136,11 +186,68 @@ const Day = () => {
               return (
                 <Accordion key={report.id}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography fontWeight="bold">{`${report.title} (${formattedDiff})`}</Typography>
+                    <Typography fontWeight="bold">{`${index + 1}. ${report.title} (${formattedDiff})`}</Typography>
                   </AccordionSummary>
+                  <Divider />
+                  <AccordionActions>
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item>
+                        <Chip
+                          avatar={<CallMadeIcon />}
+                          label={
+                            <Typography fontWeight="bold" fontSize="0.9em">
+                              {`Started: ${formattedStart}`}
+                            </Typography>
+                          }
+                          variant="outlined"
+                        />
+                        <Chip
+                          avatar={<FlagIcon />}
+                          label={
+                            <Typography fontWeight="bold" fontSize="0.9em">
+                              {`Finished: ${formattedFinish}`}
+                            </Typography>
+                          }
+                          variant="outlined"
+                        />
+                        <Chip
+                          avatar={<AccessTimeIcon />}
+                          label={
+                            <Typography fontWeight="bold" fontSize="0.9em">
+                              {`Time spent: ${getFormattedTime(report.timeSpent)}`}
+                            </Typography>
+                          }
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            setEditId(report.id);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Button size="small" color="error">
+                          Delete
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </AccordionActions>
+                  <Divider />
                   <AccordionDetails>
-                    <Typography>{`${formattedStart} - ${formattedFinish}`}</Typography>
-                    <Typography>{report.description}</Typography>
+                    <Box>
+                      <Typography fontWeight="bold" fontSize=".8em" sx={{ textTransform: 'uppercase' }} mb={2}>
+                        Description
+                      </Typography>
+                      <Box p={2} boxShadow="0 0 .5em gainsboro">
+                        <Typography>{report.description}</Typography>
+                      </Box>
+                    </Box>
                   </AccordionDetails>
                 </Accordion>
               );
@@ -150,9 +257,19 @@ const Day = () => {
           <Alert severity="info">0 reports.</Alert>
         )}
       </Box>
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Dialog
+        open={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
+      >
         <DialogContent>
-          <ReportForm closeModal={() => setIsModalOpen(false)} />
+          <ReportForm
+            editId={editId}
+            closeModal={() => {
+              setIsModalOpen(false);
+            }}
+          />
         </DialogContent>
       </Dialog>
     </Box>

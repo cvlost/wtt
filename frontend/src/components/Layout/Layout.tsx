@@ -11,7 +11,7 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
     <>
       <ToastContainer {...toastConfig} />
       <CssBaseline />
-      <Box sx={{ height: '100vh' }}>
+      <Box sx={{ height: '100vh', bgcolor: '#f4f4f4' }}>
         <Grid container sx={{ height: '100%' }} flexWrap="nowrap">
           <Grid item sx={{ height: '100%', width: '240px', flexShrink: 0, bgcolor: '#ff5b1e' }}>
             <Sidebar />

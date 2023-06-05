@@ -2,6 +2,7 @@ import Report from '../models/Report';
 import { Types } from 'mongoose';
 import { ICreateReportDto } from '../types';
 import User from '../models/User';
+import { BadRequest } from '../errors/errors';
 
 export const getAll = async (user?: string) => {
   return Report.aggregate([
@@ -66,6 +67,7 @@ export const getByDate = async (user: string, dateStr: string) => {
         dateStr: 1,
         startedAt: 1,
         finishedAt: 1,
+        timeSpent: 1,
         title: 1,
         description: 1,
         minutes: {
@@ -87,6 +89,7 @@ export const getByDate = async (user: string, dateStr: string) => {
             id: '$_id',
             startedAt: '$startedAt',
             finishedAt: '$finishedAt',
+            timeSpent: '$timeSpent',
             title: '$title',
             description: '$description',
           },
@@ -132,17 +135,26 @@ export const getByDate = async (user: string, dateStr: string) => {
 };
 
 export const getOne = async (_id: string) => {
-  return Report.find({ _id });
+  return Report.findById(_id);
 };
 
 export const createOne = async (dto: ICreateReportDto) => {
   return Report.create(dto);
 };
-//
-// export const updateOne = async (updateDto, task: string) => {
-//   return Task.updateOne({ _id: task }, updateDto);
-// };
-//
-// export const deleteOne = async (user: string, date: string, task: string) => {
-//   return Task.deleteOne({ _id: task });
-// };
+
+export const updateOne = async (_id: string, dto: ICreateReportDto) => {
+  const report = await Report.findById(_id);
+
+  if (!report) throw new BadRequest('Cannot update non-existent report');
+
+  await Report.updateOne({ _id }, dto);
+
+  report.startedAt = new Date(dto.startedAt);
+  report.finishedAt = new Date(dto.finishedAt);
+
+  return report.save();
+};
+
+export const deleteOne = async (_id: string) => {
+  return Report.deleteOne({ _id });
+};

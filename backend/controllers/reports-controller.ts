@@ -50,20 +50,26 @@ export const getByDate: RequestHandler = async (req, res, next) => {
   }
 };
 
-// export const updateOne: RequestHandler = async (req, res, next) => {
-//   try {
-//     const task = await tasksService.updateOne();
-//     return res.send(task);
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
-//
-// export const deleteOne: RequestHandler = async (req, res, next) => {
-//   try {
-//     const task = await tasksService.createOne(dto);
-//     return res.send(task);
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
+export const updateOne: RequestHandler = async (req, res, next) => {
+  const { user, title, description, startedAt, finishedAt, dateStr } = req.body as ICreateReportDto;
+  const dto: ICreateReportDto = { user, title, description, startedAt, finishedAt, dateStr };
+  const id = req.params.id as string;
+
+  try {
+    const report = await reportsService.updateOne(id, dto);
+    return res.send({ message: 'One report has been updated!', report });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const deleteOne: RequestHandler = async (req, res, next) => {
+  const id = req.params.id as string;
+
+  try {
+    await reportsService.deleteOne(id);
+    return res.sendStatus(204);
+  } catch (e) {
+    return next(e);
+  }
+};

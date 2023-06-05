@@ -16,6 +16,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { selectReportsSummaryList, selectReportsSummaryListLoading } from './calendarSlice';
 import { getAllDaysSummary } from './calendarThunks';
+import './calendar-styles.css';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -65,7 +66,7 @@ const Calendar = () => {
         {match && (
           <>
             <Typography fontWeight="bold" fontSize="0.7rem">
-              {formattedDuration}
+              Activity:
             </Typography>
             <Chip
               variant="outlined"
