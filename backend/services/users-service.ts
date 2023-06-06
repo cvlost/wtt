@@ -45,3 +45,7 @@ export const login = async (email: string, password: string) => {
 
   return user;
 };
+
+export const deleteOne = async (_id: string) => {
+  return User.deleteOne({ _id });
+};

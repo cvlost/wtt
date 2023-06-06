@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, Button, Container, Grid, InputAdornment, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Container, Grid, InputAdornment, TextField, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectUser } from '../users/usersSlice';
 import { useParams } from 'react-router';
 import { IReportMutation } from '../../types';
-import { selectCreateReportLoading, selectOneReport, selectOneReportLoading } from './calendarSlice';
+import {
+  selectCreateReportLoading,
+  selectOneReport,
+  selectOneReportLoading,
+  selectUpdateOneReportLoading,
+} from './calendarSlice';
 import { createReport, getOneDayReport, getOneReport, updateOneReport } from './calendarThunks';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -14,6 +19,7 @@ import TitleIcon from '@mui/icons-material/Title';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { MobileTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import { LoadingButton } from '@mui/lab';
 
 interface Props {
   editId?: string;
@@ -21,6 +27,7 @@ interface Props {
 }
 
 const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
+  const updateLoading = useAppSelector(selectUpdateOneReportLoading);
   const dispatch = useAppDispatch();
   const dateStr = useParams().id as string;
   const location = useLocation();
@@ -29,7 +36,7 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
   const oneReport = useAppSelector(selectOneReport);
   const oneReportLoading = useAppSelector(selectOneReportLoading);
   const createLoading = useAppSelector(selectCreateReportLoading);
-  const anyLoading = oneReportLoading || createLoading;
+  const anyLoading = oneReportLoading || createLoading || updateLoading;
   const initialFields: IReportMutation = {
     user: user?.id,
     dateStr,
@@ -65,8 +72,8 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
   }, [dispatch, editId]);
 
   useEffect(() => {
-    if (oneReport && editId) setState({ ...oneReport, user: user?.id, dateStr });
-  }, [dateStr, dispatch, editId, oneReport, user?.id]);
+    if (oneReport && editId) setState({ ...oneReport, dateStr });
+  }, [dateStr, dispatch, editId, oneReport]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -160,9 +167,16 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
               </Grid>
             </Grid>
           </Grid>
-          <Button disabled={anyLoading} type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+          <LoadingButton
+            loading={anyLoading}
+            disabled={anyLoading}
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
             {editId ? 'Update' : 'Create'}
-          </Button>
+          </LoadingButton>
         </Box>
       </Box>
     </Container>

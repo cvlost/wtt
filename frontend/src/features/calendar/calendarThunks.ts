@@ -93,7 +93,7 @@ export const updateOneReport = createAsyncThunk<
   };
 
   try {
-    return await authRetry<void>(request, dispatch);
+    return await authRetry(request, dispatch);
   } catch (e) {
     if (isAxiosError(e) && e.response && e.response.status === 400)
       return rejectWithValue(e.response.data as ValidationError);
@@ -101,3 +101,14 @@ export const updateOneReport = createAsyncThunk<
     throw e;
   }
 });
+
+export const deleteOneReport = createAsyncThunk<void, string, { state: RootState; dispatch: AppDispatch }>(
+  'calendar/delteOneReport',
+  async (id, { dispatch }) => {
+    const request = async () => {
+      await axiosApi.delete(`/reports/${id}`);
+    };
+
+    await authRetry(request, dispatch);
+  },
+);

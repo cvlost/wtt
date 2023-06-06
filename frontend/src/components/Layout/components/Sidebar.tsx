@@ -11,7 +11,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import { logout } from '../../../features/users/usersThunks';
 import useConfirm from '../../Dialogs/Confirm/useConfirm';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import BusinessIcon from '@mui/icons-material/Business';
 
 const Sidebar = () => {
@@ -69,11 +68,6 @@ const Sidebar = () => {
         {user?.role === 'admin' && (
           <MenuItem component={NavLink} to="/users">
             <GroupIcon sx={{ mr: 1 }} /> Users
-          </MenuItem>
-        )}
-        {user?.role === 'admin' && (
-          <MenuItem component={NavLink} to="/schedule">
-            <EventAvailableIcon sx={{ mr: 1 }} /> Schedule
           </MenuItem>
         )}
         <MenuItem component={NavLink} to="/company">

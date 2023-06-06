@@ -58,6 +58,7 @@ export interface IRegisterResponse {
 
 export interface IReport {
   id: string;
+  user: string;
   startedAt: string;
   finishedAt: string;
   title: string;

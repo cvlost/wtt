@@ -15,8 +15,8 @@ import {
   Typography,
 } from '@mui/material';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
-import { selectOneUser, selectOneUserLoading } from './usersSlice';
-import { getOneUser } from './usersThunks';
+import { selectOneUser, selectOneUserLoading, selectUser } from './usersSlice';
+import { deleteUser, getOneUser } from './usersThunks';
 import { apiBaseUrl } from '../../config';
 import dayjs from 'dayjs';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -30,13 +30,17 @@ import EmailIcon from '@mui/icons-material/Email';
 import EditIcon from '@mui/icons-material/Edit';
 import CakeIcon from '@mui/icons-material/Cake';
 import SettingsIcon from '@mui/icons-material/Settings';
+import GppMaybeIcon from '@mui/icons-material/GppMaybe';
+import useConfirm from '../../components/Dialogs/Confirm/useConfirm';
 
 const UserPage = () => {
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const oneUser = useAppSelector(selectOneUser);
   const oneUserLoading = useAppSelector(selectOneUserLoading);
   const navigate = useNavigate();
   const id = useParams().id as string;
+  const { confirm } = useConfirm();
 
   useEffect(() => {
     if (id) dispatch(getOneUser(id));
@@ -90,6 +94,27 @@ const UserPage = () => {
                       Edit profile
                     </Button>
                   </Grid>
+                  {user?.role === 'admin' && user?.id !== id && (
+                    <Grid item xs={12}>
+                      <Button
+                        startIcon={<GppMaybeIcon />}
+                        color="error"
+                        onClick={async () => {
+                          if (
+                            await confirm(
+                              "Delete user's account",
+                              'This action will remove all activity as well. Do you want to continue?',
+                            )
+                          ) {
+                            await dispatch(deleteUser(id));
+                            navigate(`/users`);
+                          }
+                        }}
+                      >
+                        Delete account
+                      </Button>
+                    </Grid>
+                  )}
                 </Grid>
               </Box>
             </Grid>

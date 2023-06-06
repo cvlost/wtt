@@ -19,22 +19,31 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import ReportForm from './ReportForm';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { selectOneDayReport, selectOneDayReportLoading } from './calendarSlice';
+import {
+  selectCreateReportLoading,
+  selectDeleteOneReportLoading,
+  selectOneDayReport,
+  selectOneDayReportLoading,
+  selectOneReportLoading,
+  selectUpdateOneReportLoading,
+  unsetOneReport,
+} from './calendarSlice';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs, { Dayjs } from 'dayjs';
-import { getOneDayReport } from './calendarThunks';
+import { deleteOneReport, getOneDayReport } from './calendarThunks';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import { selectOneUser } from '../users/usersSlice';
+import { selectOneUser, selectUser } from '../users/usersSlice';
 import { getOneUser } from '../users/usersThunks';
 import { apiBaseUrl } from '../../config';
 import DoneIcon from '@mui/icons-material/Done';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FlagIcon from '@mui/icons-material/Flag';
 import CallMadeIcon from '@mui/icons-material/CallMade';
+import { LoadingButton } from '@mui/lab';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -57,16 +66,22 @@ const getFormattedTime = (totalTime: number | undefined | null) => {
 };
 
 const Day = () => {
+  const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const dayReport = useAppSelector(selectOneDayReport);
   const dayReportLoading = useAppSelector(selectOneDayReportLoading);
+  const oneReportLoading = useAppSelector(selectOneReportLoading);
+  const deleteOneReportLoading = useAppSelector(selectDeleteOneReportLoading);
+  const updateOneReportLoading = useAppSelector(selectUpdateOneReportLoading);
+  const createOneReportLoading = useAppSelector(selectCreateReportLoading);
   const oneUser = useAppSelector(selectOneUser);
   const location = useLocation();
   const id = useParams().id as string;
   const userId = useSearchParams()[0].get('user');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState('');
+  const anyLoading = updateOneReportLoading || createOneReportLoading || dayReportLoading || oneReportLoading;
 
   useEffect(() => {
     dispatch(getOneDayReport(id + location.search));
@@ -154,8 +169,9 @@ const Day = () => {
         </Grid>
         <Grid item>
           {!userId && (
-            <Button
-              disabled={!isAllowedDate()}
+            <LoadingButton
+              loading={anyLoading}
+              disabled={!isAllowedDate() || anyLoading}
               variant="contained"
               size="small"
               startIcon={<AddIcon />}
@@ -165,7 +181,7 @@ const Day = () => {
               }}
             >
               Report
-            </Button>
+            </LoadingButton>
           )}
         </Grid>
       </Grid>
@@ -220,22 +236,36 @@ const Day = () => {
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item>
-                        <Button
-                          size="small"
-                          onClick={() => {
-                            setEditId(report.id);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      </Grid>
-                      <Grid item>
-                        <Button size="small" color="error">
-                          Delete
-                        </Button>
-                      </Grid>
+                      {report.user === user?.id && (
+                        <>
+                          <Grid item>
+                            <Button
+                              size="small"
+                              onClick={() => {
+                                dispatch(unsetOneReport());
+                                setEditId(report.id);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </Grid>
+                          <Grid item>
+                            <LoadingButton
+                              loading={deleteOneReportLoading}
+                              disabled={deleteOneReportLoading}
+                              size="small"
+                              color="error"
+                              onClick={async () => {
+                                await dispatch(deleteOneReport(report.id));
+                                dispatch(getOneDayReport(id + location.search));
+                              }}
+                            >
+                              Delete
+                            </LoadingButton>
+                          </Grid>
+                        </>
+                      )}
                     </Grid>
                   </AccordionActions>
                   <Divider />

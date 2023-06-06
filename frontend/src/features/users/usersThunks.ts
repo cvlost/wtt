@@ -125,3 +125,14 @@ export const updateOneUser = createAsyncThunk<
     throw e;
   }
 });
+
+export const deleteUser = createAsyncThunk<void, string, { dispatch: AppDispatch }>(
+  'users/delete',
+  async (id, { dispatch }) => {
+    const request = async () => {
+      await axiosApi.delete(`/users/${id}`);
+    };
+
+    await authRetry(request, dispatch);
+  },
+);

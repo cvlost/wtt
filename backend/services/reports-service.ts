@@ -87,6 +87,7 @@ export const getByDate = async (user: string, dateStr: string) => {
         reports: {
           $push: {
             id: '$_id',
+            user: '$user',
             startedAt: '$startedAt',
             finishedAt: '$finishedAt',
             timeSpent: '$timeSpent',
@@ -157,4 +158,8 @@ export const updateOne = async (_id: string, dto: ICreateReportDto) => {
 
 export const deleteOne = async (_id: string) => {
   return Report.deleteOne({ _id });
+};
+
+export const deleteMany = async (user: string) => {
+  return Report.deleteMany({ user });
 };

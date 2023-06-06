@@ -1,5 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createReport, getAllDaysSummary, getOneDayReport, getOneReport } from './calendarThunks';
+import {
+  createReport,
+  deleteOneReport,
+  getAllDaysSummary,
+  getOneDayReport,
+  getOneReport,
+  updateOneReport,
+} from './calendarThunks';
 import { RootState } from '../../app/store';
 import { IDayReport, IDaySummary, IReport } from '../../types';
 
@@ -11,6 +18,8 @@ interface CalendarState {
   oneReport: IReport | null;
   oneReportLoading: boolean;
   createReportLoading: boolean;
+  updateOneReportLoading: boolean;
+  deleteOneReportLoading: boolean;
 }
 
 const initialState: CalendarState = {
@@ -21,6 +30,8 @@ const initialState: CalendarState = {
   oneReport: null,
   oneReportLoading: false,
   createReportLoading: false,
+  deleteOneReportLoading: false,
+  updateOneReportLoading: false,
 };
 
 const calendarSlice = createSlice({
@@ -74,6 +85,26 @@ const calendarSlice = createSlice({
     builder.addCase(createReport.rejected, (state) => {
       state.createReportLoading = false;
     });
+
+    builder.addCase(updateOneReport.pending, (state) => {
+      state.updateOneReportLoading = true;
+    });
+    builder.addCase(updateOneReport.fulfilled, (state) => {
+      state.updateOneReportLoading = false;
+    });
+    builder.addCase(updateOneReport.rejected, (state) => {
+      state.updateOneReportLoading = false;
+    });
+
+    builder.addCase(deleteOneReport.pending, (state) => {
+      state.deleteOneReportLoading = true;
+    });
+    builder.addCase(deleteOneReport.fulfilled, (state) => {
+      state.deleteOneReportLoading = false;
+    });
+    builder.addCase(deleteOneReport.rejected, (state) => {
+      state.deleteOneReportLoading = false;
+    });
   },
 });
 
@@ -87,3 +118,5 @@ export const selectOneDayReportLoading = (state: RootState) => state.calendar.on
 export const selectCreateReportLoading = (state: RootState) => state.calendar.createReportLoading;
 export const selectOneReport = (state: RootState) => state.calendar.oneReport;
 export const selectOneReportLoading = (state: RootState) => state.calendar.oneReportLoading;
+export const selectUpdateOneReportLoading = (state: RootState) => state.calendar.updateOneReportLoading;
+export const selectDeleteOneReportLoading = (state: RootState) => state.calendar.deleteOneReportLoading;

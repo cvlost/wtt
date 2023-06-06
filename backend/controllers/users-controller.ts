@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import * as usersService from '../services/users-service';
-import { ICreateUserDto, IUpdateUserDto, IUserLoginDto } from '../types';
+import * as reportsService from '../services/reports-service';
+import { ICreateUserDto, IRequestWithUserPayload, IUpdateUserDto, IUserLoginDto } from '../types';
 import ResponseUserDto from '../dto/ResponseUserDto';
 import {
   checkTokenExistence,
@@ -9,7 +10,7 @@ import {
   saveToken,
   validateRefreshToken,
 } from '../services/jwt-service';
-import { Error } from 'mongoose';
+import mongoose, { Error } from 'mongoose';
 import { ServerError } from '../errors/errors';
 
 export const getAll: RequestHandler = async (req, res, next) => {
@@ -153,6 +154,23 @@ export const refresh: RequestHandler = async (req, res, next) => {
     });
   } catch (e) {
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);
+    return next(e);
+  }
+};
+
+export const deleteOne: RequestHandler = async (req, res, next) => {
+  const id = req.params.id as string;
+  const user = (req as IRequestWithUserPayload).user;
+
+  if (!mongoose.isValidObjectId(id)) return res.status(400).send({ error: 'Incorrect user id' });
+  if (user.id === id) return res.status(403).send({ error: 'Users cannot delete their own accounts' });
+
+  try {
+    await reportsService.deleteMany(id);
+    await usersService.deleteOne(id);
+
+    return res.sendStatus(204);
+  } catch (e) {
     return next(e);
   }
 };
