@@ -27,6 +27,16 @@ export interface IUser {
   birthDay: string;
 }
 
+export interface IActivity {
+  count: number;
+  time: number;
+}
+
+export interface IUserWithActivity extends IUser {
+  dayActivity: IActivity;
+  overallActivity: IActivity;
+}
+
 export interface ILoginMutation {
   email: string;
   password: string;

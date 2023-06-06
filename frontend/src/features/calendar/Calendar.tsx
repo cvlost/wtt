@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { DayCellContentArg, DayCellMountArg } from '@fullcalendar/core';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import dayjs from 'dayjs';
-import duration, { Duration } from 'dayjs/plugin/duration';
+import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { selectOneUser, selectOneUserLoading, unsetOneUser } from '../users/usersSlice';
@@ -17,6 +17,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { selectReportsSummaryList, selectReportsSummaryListLoading } from './calendarSlice';
 import { getAllDaysSummary } from './calendarThunks';
 import './calendar-styles.css';
+import { getFormattedTime } from '../../utils/getFormattedTime';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -41,25 +42,10 @@ const Calendar = () => {
 
   const dayCellContent = (arg: DayCellContentArg) => {
     const match = reportsSummary.find((summary) => dayjs(summary.dateStr).isSame(arg.date, 'day'));
-    let totalWorkTime: Duration;
     let formattedDuration = '';
 
-    if (match) {
-      totalWorkTime = dayjs.duration(match.totalTime, 'minutes');
+    if (match) formattedDuration = getFormattedTime(match.totalTime);
 
-      const hours = totalWorkTime.hours();
-      const minutes = totalWorkTime.minutes();
-
-      if (hours > 0) {
-        formattedDuration += `${hours} h`;
-      }
-      if (minutes > 0 || hours === 0) {
-        if (formattedDuration !== '') {
-          formattedDuration += ' ';
-        }
-        formattedDuration += `${minutes} min`;
-      }
-    }
     return (
       <Box textAlign="center">
         <span>{arg.dayNumberText}</span>

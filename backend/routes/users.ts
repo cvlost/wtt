@@ -6,7 +6,7 @@ import { permit } from '../middleware/permit';
 
 const usersRouter = express.Router();
 
-usersRouter.get('/', auth, usersController.getAll);
+usersRouter.get('/', auth, permit('admin'), usersController.getAll);
 usersRouter.post('/register', auth, permit('admin'), imagesUpload.single('avatar'), usersController.register);
 usersRouter.post('/login', usersController.login);
 usersRouter.delete('/logout', usersController.logout);

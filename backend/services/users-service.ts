@@ -1,14 +1,87 @@
 import User from '../models/User';
 import { ICreateUserDto, IUpdateUserDto } from '../types';
 import { BadRequest } from '../errors/errors';
-import { Types } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
+import dayjs from 'dayjs';
+
+const nullishActivity = { count: 0, time: 0 };
+const today = dayjs().format('YYYY[-]MM[-]DD');
+const userActivityPipelines: PipelineStage[] = [
+  {
+    $lookup: {
+      from: 'reports',
+      let: { userId: '$_id' },
+      pipeline: [
+        { $match: { $expr: { $eq: ['$user', '$$userId'] } } },
+        {
+          $facet: {
+            dayActivity: [
+              { $match: { dateStr: today } },
+              { $project: { minutes: { $range: ['$startedAtMinutes', '$finishedAtMinutes'] } } },
+              { $group: { _id: null, count: { $sum: 1 }, _temp: { $push: '$minutes' } } },
+              {
+                $project: {
+                  _id: 0,
+                  count: 1,
+                  time: {
+                    $size: {
+                      $reduce: {
+                        input: '$_temp',
+                        initialValue: [],
+                        in: {
+                          $setUnion: ['$$value', '$$this'],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            overallActivity: [
+              { $project: { minutes: { $range: ['$startedAtMinutes', '$finishedAtMinutes'] } } },
+              { $group: { _id: null, count: { $sum: 1 }, _temp: { $push: '$minutes' } } },
+              {
+                $project: {
+                  _id: 0,
+                  count: 1,
+                  time: {
+                    $size: {
+                      $reduce: {
+                        input: '$_temp',
+                        initialValue: [],
+                        in: {
+                          $setUnion: ['$$value', '$$this'],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+      as: 'reports',
+    },
+  },
+  {
+    $addFields: {
+      dayActivity: { $ifNull: [{ $first: { $first: '$reports.dayActivity' } }, nullishActivity] },
+      overallActivity: { $ifNull: [{ $first: { $first: '$reports.overallActivity' } }, nullishActivity] },
+      id: '$_id',
+    },
+  },
+  { $project: { reports: 0, password: 0, _id: 0 } },
+];
 
 export const getAll = async () => {
-  return User.find();
+  return User.aggregate(userActivityPipelines);
 };
 
 export const getOne = async (_id: string) => {
-  return User.findById({ _id });
+  const [user] = await User.aggregate([{ $match: { _id: new Types.ObjectId(_id) } }, ...userActivityPipelines]);
+
+  return user;
 };
 
 export const findById = async (id: string | Types.ObjectId) => {

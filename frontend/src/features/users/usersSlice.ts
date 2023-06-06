@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GlobalError, ILoginResponse, IUser, ValidationError } from '../../types';
+import { GlobalError, ILoginResponse, IUser, IUserWithActivity, ValidationError } from '../../types';
 import { RootState } from '../../app/store';
 import { checkAuth, getOneUser, getUsersList, login, register } from './usersThunks';
 
 interface UsersState {
   user: IUser | null;
-  usersList: IUser[];
+  usersList: IUserWithActivity[];
   usersListLoading: boolean;
-  oneUser: IUser | null;
+  oneUser: IUserWithActivity | null;
   oneUserLoading: boolean;
   accessToken: string | null;
   registerLoading: boolean;
@@ -39,9 +39,6 @@ const usersSlice = createSlice({
   reducers: {
     unsetOneUser: (state) => {
       state.oneUser = null;
-    },
-    unsetUsersList: (state) => {
-      state.usersList = [];
     },
     resetAuthErrors: (state) => {
       state.registerError = null;
@@ -127,7 +124,7 @@ const usersSlice = createSlice({
 });
 
 export const usersReducer = usersSlice.reducer;
-export const { unsetUser, resetAuthErrors, setUser, unsetUsersList, unsetOneUser } = usersSlice.actions;
+export const { unsetUser, resetAuthErrors, setUser, unsetOneUser } = usersSlice.actions;
 
 export const selectUser = (state: RootState) => state.users.user;
 export const selectRegisterLoading = (state: RootState) => state.users.registerLoading;

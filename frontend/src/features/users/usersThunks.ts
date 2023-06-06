@@ -5,7 +5,7 @@ import {
   ILoginResponse,
   IRegisterMutation,
   IRegisterResponse,
-  IUser,
+  IUserWithActivity,
   ValidationError,
 } from '../../types';
 import axiosApi from '../../axiosApi';
@@ -76,27 +76,27 @@ export const checkAuth = createAsyncThunk<ILoginResponse, void, { state: RootSta
   },
 );
 
-export const getUsersList = createAsyncThunk<IUser[], void, { state: RootState; dispatch: AppDispatch }>(
+export const getUsersList = createAsyncThunk<IUserWithActivity[], void, { state: RootState; dispatch: AppDispatch }>(
   'users/getUsersList',
   async (_, { dispatch }) => {
     const request = async () => {
-      const response = await axiosApi.get<IUser[]>(`/users`);
+      const response = await axiosApi.get<IUserWithActivity[]>(`/users`);
       return response.data;
     };
 
-    return await authRetry<IUser[]>(request, dispatch);
+    return await authRetry<IUserWithActivity[]>(request, dispatch);
   },
 );
 
-export const getOneUser = createAsyncThunk<IUser, string, { state: RootState; dispatch: AppDispatch }>(
+export const getOneUser = createAsyncThunk<IUserWithActivity, string, { state: RootState; dispatch: AppDispatch }>(
   'users/getOneUser',
   async (id, { dispatch }) => {
     const request = async () => {
-      const response = await axiosApi.get<IUser>(`/users/${id}`);
+      const response = await axiosApi.get<IUserWithActivity>(`/users/${id}`);
       return response.data;
     };
 
-    return await authRetry<IUser>(request, dispatch);
+    return await authRetry<IUserWithActivity>(request, dispatch);
   },
 );
 

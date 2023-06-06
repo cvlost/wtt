@@ -31,8 +31,6 @@ import {
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs, { Dayjs } from 'dayjs';
 import { deleteOneReport, getOneDayReport } from './calendarThunks';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
@@ -44,26 +42,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FlagIcon from '@mui/icons-material/Flag';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import { LoadingButton } from '@mui/lab';
-
-dayjs.extend(relativeTime);
-dayjs.extend(duration);
-
-const getFormattedTime = (totalTime: number | undefined | null) => {
-  if (!(typeof totalTime === 'number')) return '';
-
-  let formattedDuration = '';
-  const totalWorkTime = dayjs.duration(totalTime, 'minutes');
-  const hours = totalWorkTime.hours();
-  const minutes = totalWorkTime.minutes();
-
-  if (hours > 0) formattedDuration += `${hours} h`;
-  if (minutes > 0 || hours === 0) {
-    if (formattedDuration !== '') formattedDuration += ' ';
-    formattedDuration += `${minutes} min`;
-  }
-
-  return formattedDuration;
-};
+import { getFormattedTime } from '../../utils/getFormattedTime';
 
 const Day = () => {
   const user = useAppSelector(selectUser);
