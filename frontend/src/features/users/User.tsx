@@ -19,10 +19,19 @@ const User: React.FC<Props> = ({ user }) => {
 
   return (
     <Box key={user.id} sx={{ bgcolor: 'white', borderBottom: '1px solid gainsboro' }}>
-      <Grid container alignItems="center">
-        <Grid item p={1} xs={4}>
+      <Grid container alignItems="center" justifyContent="center">
+        <Grid item p={1} lg={4} sm={6} xs={12}>
           <Box>
-            <Grid container alignItems="center">
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                justifyContent: {
+                  xs: 'center',
+                  sm: 'flex-start',
+                },
+              }}
+            >
               <Grid item p={1}>
                 <Avatar
                   alt={user.lastName}
@@ -48,9 +57,18 @@ const User: React.FC<Props> = ({ user }) => {
             </Grid>
           </Box>
         </Grid>
-        <Grid item p={1}>
+        <Grid item p={1} lg={8} sm={6} xs={12}>
           <Box>
-            <Grid container alignItems="center">
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                justifyContent: {
+                  xs: 'center',
+                  sm: 'flex-start',
+                },
+              }}
+            >
               <Grid item p={1}>
                 <Avatar sx={{ bgcolor: 'deeppink' }}>
                   <TrendingUpIcon />

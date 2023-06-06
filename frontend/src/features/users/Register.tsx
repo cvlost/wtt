@@ -140,7 +140,7 @@ const Register: React.FC<Props> = ({ edit = false }) => {
         }}
       >
         <Avatar
-          sx={{ m: 2, width: '70px', height: '70px' }}
+          sx={{ m: 2, width: '70px', height: '70px', bgcolor: '#ff5b1e' }}
           src={edit && oneUser?.avatar ? `${apiBaseUrl}/${oneUser.avatar}` : undefined}
         />
         <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>

@@ -66,7 +66,7 @@ const Login = () => {
           alignItems: 'center',
         }}
       >
-        <Avatar sx={{ m: 2, width: '70px', height: '70px' }} />
+        <Avatar sx={{ m: 2, width: '70px', height: '70px', bgcolor: '#ff5b1e' }} />
         <Typography component="h1" fontSize="1em" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
           Sign in
         </Typography>

@@ -5,3 +5,7 @@
 .fc-daygrid-day-frame.fc-scrollgrid-sync-inner {
   height: 100%;
 }
+
+.fc-daygrid-day-events {
+  display: none;
+}

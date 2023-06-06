@@ -137,6 +137,11 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                     label="Started"
                     ampm={false}
                     format="HH:mm"
+                    slotProps={{
+                      textField: {
+                        required: true,
+                      },
+                    }}
                     maxTime={state.finishedAt ? dayjs(state.finishedAt) : undefined}
                     value={state.startedAt ? dayjs(state.startedAt) : null}
                     onChange={(newValue) => {
@@ -156,6 +161,11 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                     label="Finished"
                     ampm={false}
                     format="HH:mm"
+                    slotProps={{
+                      textField: {
+                        required: true,
+                      },
+                    }}
                     minTime={state.startedAt ? dayjs(state.startedAt) : undefined}
                     value={state.finishedAt ? dayjs(state.finishedAt) : null}
                     onChange={(newValue) => {

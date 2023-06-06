@@ -56,7 +56,16 @@ const UserPage = () => {
             Profile
           </Typography>
           <Grid container>
-            <Grid item xs={4} p={2} boxShadow="0 0 0.5em gainsboro" alignSelf="flex-start" bgcolor="white">
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              lg={4}
+              p={2}
+              boxShadow="0 0 0.5em gainsboro"
+              alignSelf="flex-start"
+              bgcolor="white"
+            >
               <Box>
                 <Badge
                   overlap="circular"
@@ -118,7 +127,7 @@ const UserPage = () => {
                 </Grid>
               </Box>
             </Grid>
-            <Grid item xs={8} p={2}>
+            <Grid item xs={12} sm={6} lg={8} p={2}>
               <Typography fontWeight="bold" fontSize="0.8em">
                 Personal data
               </Typography>

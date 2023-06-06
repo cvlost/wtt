@@ -1,18 +1,26 @@
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, useMediaQuery } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
+import theme from '../../../theme';
 
-const Logo = () => {
+interface Props {
+  onClick?: () => void;
+}
+
+const Logo: React.FC<Props> = ({ onClick = undefined }) => {
+  const mdMediaQuery = useMediaQuery(theme.breakpoints.up('md'));
+
   return (
     <Box sx={{ bgcolor: 'deeppink' }}>
       <Button
         component={NavLink}
         to="/"
         startIcon={<HistoryToggleOffIcon />}
-        fullWidth
         size="large"
         sx={{ color: 'white' }}
+        fullWidth={mdMediaQuery}
+        onClick={onClick}
       >
         Time tracker
       </Button>

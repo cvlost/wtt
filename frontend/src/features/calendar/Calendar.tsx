@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Chip, CircularProgress, Typography } from '@mui/material';
+import { Avatar, Box, Chip, CircularProgress, Typography, useMediaQuery } from '@mui/material';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { DayCellContentArg, DayCellMountArg } from '@fullcalendar/core';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -18,6 +18,8 @@ import { selectReportsSummaryList, selectReportsSummaryListLoading } from './cal
 import { getAllDaysSummary } from './calendarThunks';
 import './calendar-styles.css';
 import { getFormattedTime } from '../../utils/getFormattedTime';
+import theme from '../../theme';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -31,6 +33,7 @@ const Calendar = () => {
   const reportsSummaryLoading = useAppSelector(selectReportsSummaryListLoading);
   const oneUser = useAppSelector(selectOneUser);
   const oneUserLoading = useAppSelector(selectOneUserLoading);
+  const smMediaQuery = useMediaQuery(theme.breakpoints.up('sm'));
 
   const dayCellDidMount = (arg: DayCellMountArg) => {
     const dayCellElement = arg.el;
@@ -49,9 +52,9 @@ const Calendar = () => {
     return (
       <Box textAlign="center">
         <span>{arg.dayNumberText}</span>
-        {match && (
+        {!match ? null : smMediaQuery ? (
           <>
-            <Typography fontWeight="bold" fontSize="0.7rem">
+            <Typography fontWeight="bold" fontSize="0.7rem" mt={1}>
               Activity:
             </Typography>
             <Chip
@@ -71,6 +74,10 @@ const Calendar = () => {
               sx={{ cursor: 'pointer' }}
             />
           </>
+        ) : (
+          <Avatar sx={{ bgcolor: 'deeppink', mt: 2 }}>
+            <TrendingUpIcon />
+          </Avatar>
         )}
       </Box>
     );

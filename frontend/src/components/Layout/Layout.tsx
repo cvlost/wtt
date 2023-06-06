@@ -13,7 +13,19 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
       <CssBaseline />
       <Box sx={{ height: '100vh', bgcolor: '#f4f4f4' }}>
         <Grid container sx={{ height: '100%' }} flexWrap="nowrap">
-          <Grid item sx={{ height: '100%', width: '240px', flexShrink: 0, bgcolor: '#ff5b1e' }}>
+          <Grid
+            item
+            sx={{
+              height: '100%',
+              display: {
+                xs: 'none',
+                md: 'block',
+              },
+              width: '240px',
+              flexShrink: 0,
+              bgcolor: '#ff5b1e',
+            }}
+          >
             <Sidebar />
           </Grid>
           <Grid item sx={{ height: '100%', overflow: 'auto', flexGrow: 1 }}>
