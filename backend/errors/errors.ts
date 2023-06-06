@@ -19,3 +19,9 @@ export class Unauthorized extends ServerError {
     super(401, error);
   }
 }
+
+export class Forbidden extends ServerError {
+  constructor(error = 'Forbidden') {
+    super(403, error);
+  }
+}

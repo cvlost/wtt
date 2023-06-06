@@ -11,7 +11,7 @@ import {
   validateRefreshToken,
 } from '../services/jwt-service';
 import mongoose, { Error } from 'mongoose';
-import { ServerError } from '../errors/errors';
+import { BadRequest, Forbidden, ServerError } from '../errors/errors';
 
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
@@ -162,8 +162,8 @@ export const deleteOne: RequestHandler = async (req, res, next) => {
   const id = req.params.id as string;
   const user = (req as IRequestWithUserPayload).user;
 
-  if (!mongoose.isValidObjectId(id)) return res.status(400).send({ error: 'Incorrect user id' });
-  if (user.id === id) return res.status(403).send({ error: 'Users cannot delete their own accounts' });
+  if (!mongoose.isValidObjectId(id)) throw new BadRequest('Incorrect user id');
+  if (user.id === id) throw new Forbidden('Users cannot delete their own accounts');
 
   try {
     await reportsService.deleteMany(id);
