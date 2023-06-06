@@ -38,12 +38,10 @@ const userActivityPipelines: PipelineStage[] = [
               },
             ],
             overallActivity: [
-              { $project: { minutes: { $range: ['$startedAtMinutes', '$finishedAtMinutes'] } } },
-              { $group: { _id: null, count: { $sum: 1 }, _temp: { $push: '$minutes' } } },
+              { $project: { dateStr: 1, minutes: { $range: ['$startedAtMinutes', '$finishedAtMinutes'] } } },
+              { $group: { _id: '$dateStr', count: { $sum: 1 }, _temp: { $push: '$minutes' } } },
               {
-                $project: {
-                  _id: 0,
-                  count: 1,
+                $addFields: {
                   time: {
                     $size: {
                       $reduce: {
@@ -57,6 +55,8 @@ const userActivityPipelines: PipelineStage[] = [
                   },
                 },
               },
+              { $group: { _id: null, time: { $sum: '$time' }, count: { $sum: '$count' } } },
+              { $project: { _id: 0, count: 1, time: 1 } },
             ],
           },
         },
