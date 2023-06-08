@@ -12,6 +12,7 @@ import Calendar from './features/calendar/Calendar';
 import Day from './features/calendar/Day';
 import Users from './features/users/Users';
 import UserPage from './features/users/UserPage';
+import Company from './pages/Company/Company';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -82,6 +83,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/company" element={<Company />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>

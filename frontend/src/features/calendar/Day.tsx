@@ -18,7 +18,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import { deleteOneReport, getOneDayReport } from './calendarThunks';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import { selectOneUser } from '../users/usersSlice';
+import { selectOneUser, selectUser } from '../users/usersSlice';
 import { getOneUser } from '../users/usersThunks';
 import { apiBaseUrl } from '../../config';
 import DoneIcon from '@mui/icons-material/Done';
@@ -29,6 +29,7 @@ import useConfirm from '../../components/Dialogs/Confirm/useConfirm';
 import Report from './Report';
 
 const Day = () => {
+  const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const dayReport = useAppSelector(selectOneDayReport);
@@ -105,7 +106,7 @@ const Day = () => {
             </Typography>
           </Box>
           {oneUser && (
-            <Box>
+            <Box mb={2}>
               <Chip
                 onClick={() => navigate(`/profile/${oneUser.id}`)}
                 sx={{
@@ -145,7 +146,7 @@ const Day = () => {
           )}
         </Grid>
         <Grid item>
-          {!userId && (
+          {(!userId || userId === user?.id) && (
             <LoadingButton
               loading={anyLoading}
               disabled={!isAllowedDate() || anyLoading}
