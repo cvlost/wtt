@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, Container, Grid, InputAdornment, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Container, Grid, TextField, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectUser } from '../users/usersSlice';
 import { useParams } from 'react-router';
@@ -20,6 +20,11 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { MobileTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
+import FroalaEditorComponent from 'react-froala-wysiwyg';
+import 'froala-editor/css/froala_style.min.css';
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+import 'froala-editor/js/plugins.pkgd.min.js';
+import { froala } from '../../config';
 
 interface Props {
   editId?: string;
@@ -76,7 +81,7 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
   }, [dateStr, dispatch, editId, oneReport]);
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="md">
       <Box
         sx={{
           display: 'flex',
@@ -91,40 +96,24 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
           {editId ? 'Edit report' : 'New report'}
         </Typography>
         <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                disabled={anyLoading}
-                required
-                label="Title"
-                name="title"
-                autoComplete="off"
-                value={state.title}
-                onChange={inputChangeHandler}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position={'start'}>
-                      <TitleIcon sx={{ mr: 1 }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+          <Grid container spacing={2} flexDirection="column" alignItems="center">
+            <Grid item container maxWidth="500px" spacing={1} flexWrap="nowrap" alignItems="center">
+              <Grid item>
+                <TitleIcon />
+              </Grid>
+              <Grid item flexGrow={1}>
+                <TextField
+                  disabled={anyLoading}
+                  required
+                  label="Title"
+                  name="title"
+                  autoComplete="off"
+                  value={state.title}
+                  onChange={inputChangeHandler}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                disabled={anyLoading}
-                required
-                multiline
-                rows={5}
-                label="Description"
-                name="description"
-                type="text"
-                autoComplete="off"
-                value={state.description}
-                onChange={inputChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12} container spacing={1} flexWrap="nowrap" alignItems="center">
+            <Grid item container maxWidth="500px" spacing={1} flexWrap="nowrap" alignItems="center">
               <Grid item>
                 <AccessTimeIcon />
               </Grid>
@@ -176,17 +165,31 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
                 </LocalizationProvider>
               </Grid>
             </Grid>
+            <Grid item>
+              <Typography fontWeight="bold" fontSize="0.8em">
+                Description
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <FroalaEditorComponent
+                config={froala}
+                model={state.description}
+                onModelChange={(model: string) => setState((prev) => ({ ...prev, description: model }))}
+              />
+            </Grid>
           </Grid>
-          <LoadingButton
-            loading={anyLoading}
-            disabled={anyLoading}
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            {editId ? 'Update' : 'Create'}
-          </LoadingButton>
+          <Grid item textAlign="center">
+            <LoadingButton
+              loading={anyLoading}
+              disabled={anyLoading}
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, maxWidth: '200px' }}
+            >
+              {editId ? 'Update' : 'Create'}
+            </LoadingButton>
+          </Grid>
         </Box>
       </Box>
     </Container>

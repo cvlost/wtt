@@ -22,6 +22,7 @@ import { IReport } from '../../types';
 import { useAppSelector } from '../../app/hooks';
 import { selectUser } from '../users/usersSlice';
 import { selectDeleteOneReportLoading } from './calendarSlice';
+import FroalaEditorView from 'react-froala-wysiwyg/FroalaEditorView';
 
 interface Props {
   report: IReport;
@@ -36,14 +37,24 @@ const Report: React.FC<Props> = ({ report, index, onEdit, onDelete }) => {
   const finish = dayjs(report.finishedAt);
   const formattedStart = start.format('HH:mm');
   const formattedFinish = finish.format('HH:mm');
-  const diff = finish.diff(start);
   const deleteOneReportLoading = useAppSelector(selectDeleteOneReportLoading);
-  const formattedDiff = dayjs.duration(diff).humanize();
 
   return (
     <Accordion key={report.id}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography fontWeight="bold" fontSize="0.9em">{`${index + 1}. ${report.title} (${formattedDiff})`}</Typography>
+        <Typography fontWeight="bold" fontSize="0.9em">
+          {`${index + 1}. ${report.title} `}
+          <Chip
+            color="info"
+            avatar={<AccessTimeIcon sx={{ color: '#0288d1 !important' }} />}
+            label={
+              <Typography fontWeight="bold" fontSize="0.9em">
+                {`${getFormattedTime(report.timeSpent)}`}
+              </Typography>
+            }
+            variant="outlined"
+          />
+        </Typography>
       </AccordionSummary>
       <Divider />
       <AccordionActions>
@@ -113,17 +124,21 @@ const Report: React.FC<Props> = ({ report, index, onEdit, onDelete }) => {
           )}
         </Grid>
       </AccordionActions>
-      <Divider />
-      <AccordionDetails>
-        <Box>
-          <Typography fontWeight="bold" fontSize=".8em" sx={{ textTransform: 'uppercase' }} mb={2}>
-            Description
-          </Typography>
-          <Box p={2} boxShadow="0 0 .5em gainsboro">
-            <Typography>{report.description}</Typography>
-          </Box>
-        </Box>
-      </AccordionDetails>
+      {report.description && (
+        <>
+          <Divider />
+          <AccordionDetails>
+            <Box>
+              <Typography fontWeight="bold" fontSize=".8em" sx={{ textTransform: 'uppercase' }} mb={2}>
+                Description
+              </Typography>
+              <Box p={2} boxShadow="0 0 0.5em #ffe2e2" borderLeft="3px solid deeppink">
+                <FroalaEditorView model={report.description} />
+              </Box>
+            </Box>
+          </AccordionDetails>
+        </>
+      )}
     </Accordion>
   );
 };

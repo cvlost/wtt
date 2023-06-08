@@ -169,7 +169,7 @@ const Day = () => {
         {dayReportLoading ? (
           <MainPreloader />
         ) : dayReport?.reports?.length ? (
-          <Box>
+          <Box pb={8}>
             {dayReport.reports.map((report, index) => (
               <Report key={report.id} report={report} index={index} onEdit={onReportEdit} onDelete={onReportDelete} />
             ))}
@@ -179,6 +179,7 @@ const Day = () => {
         )}
       </Box>
       <Dialog
+        maxWidth={false}
         open={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
