@@ -91,7 +91,7 @@ const FileInput: React.FC<Props> = ({
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton edge="end" onClick={activateInput}>
+                  <IconButton edge="end">
                     <FileUploadIcon />
                   </IconButton>
                 </InputAdornment>

@@ -48,6 +48,27 @@ const Day = () => {
   const anyLoading =
     updateOneReportLoading || createOneReportLoading || dayReportLoading || oneReportLoading || deleteOneReportLoading;
 
+  const isAllowedDate = () => {
+    if (!dayReport) return false;
+
+    const today = dayjs();
+    const allowedDates: Dayjs[] = [today];
+
+    for (let i = 0; i < 2; i++) {
+      let prevDay = allowedDates[i].subtract(1, 'day');
+      while (prevDay.day() === 0 || prevDay.day() === 6) {
+        prevDay = prevDay.subtract(1, 'day');
+      }
+      allowedDates.push(prevDay);
+    }
+
+    if (today.day() === 0 || today.day() === 6) allowedDates.shift();
+
+    const allowedStr = allowedDates.map((date) => date.format('YYYY[-]MM[-]DD'));
+
+    return allowedStr.includes(dayReport.dateStr);
+  };
+
   useEffect(() => {
     dispatch(getOneDayReport(id + location.search));
   }, [dispatch, id, location.search]);
@@ -69,27 +90,6 @@ const Day = () => {
       await dispatch(deleteOneReport(reportId));
       dispatch(getOneDayReport(id + location.search));
     }
-  };
-
-  const isAllowedDate = () => {
-    if (!dayReport) return false;
-
-    const today = dayjs();
-    const allowedDates: Dayjs[] = [today];
-
-    for (let i = 0; i < 2; i++) {
-      let prevDay = allowedDates[i].subtract(1, 'day');
-      while (prevDay.day() === 0 || prevDay.day() === 6) {
-        prevDay = prevDay.subtract(1, 'day');
-      }
-      allowedDates.push(prevDay);
-    }
-
-    if (today.day() === 0 || today.day() === 6) allowedDates.shift();
-
-    const allowedStr = allowedDates.map((date) => date.format('YYYY[-]MM[-]DD'));
-
-    return allowedStr.includes(dayReport.dateStr);
   };
 
   return (
@@ -146,7 +146,7 @@ const Day = () => {
           )}
         </Grid>
         <Grid item>
-          {(!userId || userId === user?.id) && (
+          {(!userId || userId === user?.id) && isAllowedDate() && (
             <LoadingButton
               loading={anyLoading}
               disabled={!isAllowedDate() || anyLoading}

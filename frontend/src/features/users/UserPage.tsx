@@ -20,7 +20,7 @@ import { deleteUser, getOneUser } from './usersThunks';
 import { apiBaseUrl } from '../../config';
 import dayjs from 'dayjs';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -45,6 +45,8 @@ const UserPage = () => {
   useEffect(() => {
     if (id) dispatch(getOneUser(id));
   }, [dispatch, id]);
+
+  if (user?.role !== 'admin' && user?.id !== id) return <Navigate to={'/calendar'} />;
 
   return (
     <Box p={2}>

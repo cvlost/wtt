@@ -5,7 +5,7 @@ import Login from './features/users/Login';
 import NotFound from './components/NotFound/NotFound';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { useAppDispatch, useAppSelector } from './app/hooks';
-import { selectUserAuthorized, selectUserToken } from './features/users/usersSlice';
+import { selectUser, selectUserAuthorized, selectUserToken } from './features/users/usersSlice';
 import Register from './features/users/Register';
 import { checkAuth } from './features/users/usersThunks';
 import Calendar from './features/calendar/Calendar';
@@ -16,8 +16,10 @@ import Company from './pages/Company/Company';
 
 function App() {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const token = useAppSelector(selectUserToken);
   const authorized = useAppSelector(selectUserAuthorized);
+  const authorizedAdmin = authorized && user?.role === 'admin';
 
   useEffect(() => {
     if (token) dispatch(checkAuth());
@@ -38,7 +40,7 @@ function App() {
         <Route
           path="/register"
           element={
-            <ProtectedRoute isAllowed={authorized}>
+            <ProtectedRoute isAllowed={authorizedAdmin}>
               <Register />
             </ProtectedRoute>
           }
@@ -46,7 +48,7 @@ function App() {
         <Route
           path="/users"
           element={
-            <ProtectedRoute isAllowed={authorized}>
+            <ProtectedRoute isAllowed={authorizedAdmin}>
               <Users />
             </ProtectedRoute>
           }

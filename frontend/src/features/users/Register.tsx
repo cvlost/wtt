@@ -118,7 +118,7 @@ const Register: React.FC<Props> = ({ edit = false }) => {
       ? await dispatch(updateOneUser({ id: userId, data: state })).unwrap()
       : await dispatch(register(state)).unwrap();
 
-    navigate('/users');
+    user?.role === 'admin' ? navigate('/users') : navigate(`/profile/${user?.id}`);
   };
 
   const getFieldError = (fieldName: string) => {
