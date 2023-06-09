@@ -59,16 +59,19 @@ const ReportForm: React.FC<Props> = ({ editId = undefined, closeModal }) => {
 
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-    editId && oneReport
-      ? await dispatch(
-          updateOneReport({
-            id: oneReport.id,
-            report: state,
-          }),
-        ).unwrap()
-      : await dispatch(createReport(state)).unwrap();
+    if (editId && oneReport) {
+      await dispatch(
+        updateOneReport({
+          id: oneReport.id,
+          report: state,
+        }),
+      ).unwrap();
+    } else {
+      await dispatch(createReport(state)).unwrap();
+    }
 
     closeModal();
+    setState(initialFields);
     await dispatch(getOneDayReport(id + location.search));
   };
 

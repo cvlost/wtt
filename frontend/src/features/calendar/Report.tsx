@@ -42,7 +42,7 @@ const Report: React.FC<Props> = ({ report, index, onEdit, onDelete }) => {
   return (
     <Accordion key={report.id}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography fontWeight="bold" fontSize="0.9em">
+        <Typography component="div" fontWeight="bold" fontSize="0.9em">
           {`${index + 1}. ${report.title} `}
           <Chip
             color="info"
