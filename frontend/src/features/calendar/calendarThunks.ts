@@ -62,7 +62,7 @@ export const createReport = createAsyncThunk<
   try {
     return await authRetry<void>(request, dispatch);
   } catch (e) {
-    if (isAxiosError(e) && e.response && e.response.status === 400)
+    if (isAxiosError(e) && e.response && (e.response.status === 400 || e.response.status === 422))
       return rejectWithValue(e.response.data as ValidationError);
 
     throw e;
@@ -95,7 +95,7 @@ export const updateOneReport = createAsyncThunk<
   try {
     return await authRetry(request, dispatch);
   } catch (e) {
-    if (isAxiosError(e) && e.response && e.response.status === 400)
+    if (isAxiosError(e) && e.response && (e.response.status === 400 || e.response.status === 422))
       return rejectWithValue(e.response.data as ValidationError);
 
     throw e;

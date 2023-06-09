@@ -32,7 +32,7 @@ export const register = createAsyncThunk<
   try {
     return await authRetry<void>(request, dispatch);
   } catch (e) {
-    if (isAxiosError(e) && e.response && e.response.status === 400)
+    if (isAxiosError(e) && e.response && (e.response.status === 400 || e.response.status === 422))
       return rejectWithValue(e.response.data as ValidationError);
 
     throw e;
@@ -46,7 +46,7 @@ export const login = createAsyncThunk<ILoginResponse, ILoginMutation, { rejectVa
       const response = await axiosApi.post<ILoginResponse>('/users/login', loginMutation);
       return response.data;
     } catch (e) {
-      if (isAxiosError(e) && e.response && e.response.status === 400)
+      if (isAxiosError(e) && e.response && (e.response.status === 400 || e.response.status === 422))
         return rejectWithValue(e.response.data as GlobalError);
 
       throw e;
@@ -119,7 +119,7 @@ export const updateOneUser = createAsyncThunk<
   try {
     return await authRetry(request, dispatch);
   } catch (e) {
-    if (isAxiosError(e) && e.response && e.response.status === 400)
+    if (isAxiosError(e) && e.response && (e.response.status === 400 || e.response.status === 422))
       return rejectWithValue(e.response.data as ValidationError);
 
     throw e;
