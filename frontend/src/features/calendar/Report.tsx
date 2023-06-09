@@ -23,6 +23,8 @@ import { useAppSelector } from '../../app/hooks';
 import { selectUser } from '../users/usersSlice';
 import { selectDeleteOneReportLoading } from './calendarSlice';
 import FroalaEditorView from 'react-froala-wysiwyg/FroalaEditorView';
+import { isAllowedDate } from '../../utils/isAllowedDate';
+import { useParams } from 'react-router';
 
 interface Props {
   report: IReport;
@@ -35,9 +37,11 @@ const Report: React.FC<Props> = ({ report, index, onEdit, onDelete }) => {
   const user = useAppSelector(selectUser);
   const start = dayjs(report.startedAt);
   const finish = dayjs(report.finishedAt);
+  const date = useParams().id as string;
   const formattedStart = start.format('HH:mm');
   const formattedFinish = finish.format('HH:mm');
   const deleteOneReportLoading = useAppSelector(selectDeleteOneReportLoading);
+  const showControls = report.user === user?.id && date && isAllowedDate(date);
 
   return (
     <Accordion key={report.id}>
@@ -100,7 +104,7 @@ const Report: React.FC<Props> = ({ report, index, onEdit, onDelete }) => {
               variant="outlined"
             />
           </Grid>
-          {report.user === user?.id && (
+          {showControls && (
             <Box>
               <Grid container alignItems="center">
                 <Grid item>

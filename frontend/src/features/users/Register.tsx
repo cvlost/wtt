@@ -328,7 +328,7 @@ const Register: React.FC<Props> = ({ edit = false }) => {
                       <MenuItem value="employee">Employee</MenuItem>
                     </TextField>
                   </Grid>
-                  {!edit && (
+                  {(!edit || oneUser?.id !== user?.id) && (
                     <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
                       <AdminPanelSettingsIcon sx={{ mr: 1 }} />
                       <TextField

@@ -15,7 +15,7 @@ import {
 } from './calendarSlice';
 import MainPreloader from '../../components/Preloaders/MainPreloader';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { deleteOneReport, getOneDayReport } from './calendarThunks';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { selectOneUser, selectUser } from '../users/usersSlice';
@@ -27,6 +27,7 @@ import { LoadingButton } from '@mui/lab';
 import { getFormattedTime } from '../../utils/getFormattedTime';
 import useConfirm from '../../components/Dialogs/Confirm/useConfirm';
 import Report from './Report';
+import { isAllowedDate } from '../../utils/isAllowedDate';
 
 const Day = () => {
   const user = useAppSelector(selectUser);
@@ -45,29 +46,9 @@ const Day = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState('');
   const { confirm } = useConfirm();
+  const allowedDate = dayReport && isAllowedDate(dayReport.dateStr);
   const anyLoading =
     updateOneReportLoading || createOneReportLoading || dayReportLoading || oneReportLoading || deleteOneReportLoading;
-
-  const isAllowedDate = () => {
-    if (!dayReport) return false;
-
-    const today = dayjs();
-    const allowedDates: Dayjs[] = [today];
-
-    for (let i = 0; i < 2; i++) {
-      let prevDay = allowedDates[i].subtract(1, 'day');
-      while (prevDay.day() === 0 || prevDay.day() === 6) {
-        prevDay = prevDay.subtract(1, 'day');
-      }
-      allowedDates.push(prevDay);
-    }
-
-    if (today.day() === 0 || today.day() === 6) allowedDates.shift();
-
-    const allowedStr = allowedDates.map((date) => date.format('YYYY[-]MM[-]DD'));
-
-    return allowedStr.includes(dayReport.dateStr);
-  };
 
   useEffect(() => {
     dispatch(getOneDayReport(id + location.search));
@@ -87,7 +68,7 @@ const Day = () => {
 
   const onReportDelete = async (reportId: string) => {
     if (await confirm('Delete report', 'Do you want to delete this report?')) {
-      await dispatch(deleteOneReport(reportId));
+      await dispatch(deleteOneReport(reportId)).unwrap();
       dispatch(getOneDayReport(id + location.search));
     }
   };
@@ -146,10 +127,10 @@ const Day = () => {
           )}
         </Grid>
         <Grid item>
-          {(!userId || userId === user?.id) && isAllowedDate() && (
+          {(!userId || userId === user?.id) && allowedDate && (
             <LoadingButton
               loading={anyLoading}
-              disabled={!isAllowedDate() || anyLoading}
+              disabled={!allowedDate || anyLoading}
               variant="contained"
               size="small"
               sx={{ mb: 2 }}
