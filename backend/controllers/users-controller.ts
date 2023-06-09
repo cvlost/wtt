@@ -1,7 +1,8 @@
 import { RequestHandler } from 'express';
 import * as usersService from '../services/users-service';
 import * as reportsService from '../services/reports-service';
-import { ICreateUserDto, IRequestWithUserPayload, IUpdateUserDto, IUserLoginDto } from '../types';
+import { ICreateUserDto, IEditor, IRequestWithUserPayload, IUpdateUserDto, IUserLoginDto } from '../types';
+import { promises as fs } from 'fs';
 import ResponseUserDto from '../dto/ResponseUserDto';
 import {
   checkTokenExistence,
@@ -54,6 +55,7 @@ export const register: RequestHandler = async (req, res, next) => {
 
     return res.sendStatus(201);
   } catch (e) {
+    if (req.file) await fs.unlink(req.file.path);
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);
     if (e instanceof Error.ValidationError) return res.status(422).send(e);
     return next(e);
@@ -98,9 +100,7 @@ export const logout: RequestHandler = async (req, res, next) => {
 export const updateOne: RequestHandler = async (req, res, next) => {
   const user = (req as IRequestWithUserPayload).user;
   const userId = req.params.id as string;
-
-  if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ error: 'Invalid user id' });
-  if (user.role !== 'admin' && user.id !== userId) return res.status(403).send({ error: 'Forbidden' });
+  const editor: IEditor = { id: user.id, role: user.role };
 
   const avatar = req.file ? req.file.filename : undefined;
   const body = req.body as IUpdateUserDto;
@@ -118,10 +118,11 @@ export const updateOne: RequestHandler = async (req, res, next) => {
   };
 
   try {
-    await usersService.updateOne(userId, dto);
+    await usersService.updateOne(editor, userId, dto);
 
     return res.sendStatus(204);
   } catch (e) {
+    if (req.file) await fs.unlink(req.file.path);
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);
     if (e instanceof Error.ValidationError) return res.status(422).send(e);
     return next(e);

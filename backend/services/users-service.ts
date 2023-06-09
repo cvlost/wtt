@@ -1,7 +1,7 @@
 import User from '../models/User';
-import { ICreateUserDto, IUpdateUserDto } from '../types';
-import { NotFound, ValidationFailed } from '../errors/errors';
-import { PipelineStage, Types } from 'mongoose';
+import { ICreateUserDto, IEditor, IUpdateUserDto } from '../types';
+import { BadRequest, Forbidden, NotFound, ValidationFailed } from '../errors/errors';
+import mongoose, { PipelineStage, Types } from 'mongoose';
 import dayjs from 'dayjs';
 
 const nullishActivity = { count: 0, time: 0 };
@@ -92,9 +92,11 @@ export const create = async (dto: ICreateUserDto) => {
   return await User.create(dto);
 };
 
-export const updateOne = async (_id: string, dto: IUpdateUserDto) => {
-  const user = await User.findById(_id);
+export const updateOne = async (editor: IEditor, _id: string, dto: IUpdateUserDto) => {
+  if (!mongoose.isValidObjectId(_id)) throw new BadRequest('Invalid user id');
+  if (editor.role !== 'admin' && editor.id !== _id) throw new Forbidden();
 
+  const user = await User.findById(_id);
   if (!user) throw new NotFound('Cannot update non-existent user');
 
   await User.updateOne({ _id }, dto);

@@ -91,3 +91,8 @@ export interface ICreateReportDto {
   title: string;
   description: string;
 }
+
+export interface IEditor {
+  role: string;
+  id: string;
+}
