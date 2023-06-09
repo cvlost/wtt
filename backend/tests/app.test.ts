@@ -9,6 +9,7 @@ describe('API healthcheck', () => {
     const res = await request.get('/').send();
     const body = res.body;
     const message = body.message;
+
     expect(res.statusCode).toBe(200);
     expect(message).toBe('Hello World!');
   });

@@ -11,7 +11,7 @@ import {
   validateRefreshToken,
 } from '../services/jwt-service';
 import mongoose, { Error } from 'mongoose';
-import { BadRequest, Forbidden, ServerError } from '../errors/errors';
+import { Forbidden, ServerError } from '../errors/errors';
 
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
@@ -50,16 +50,12 @@ export const register: RequestHandler = async (req, res, next) => {
   };
 
   try {
-    const user = await usersService.create(dto);
-    const userResponseDto = new ResponseUserDto(user);
+    await usersService.create(dto);
 
-    return res.status(201).send({
-      user: userResponseDto,
-      message: 'A new user has been registered!',
-    });
+    return res.sendStatus(201);
   } catch (e) {
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);
-    if (e instanceof Error.ValidationError) return res.status(400).send(e);
+    if (e instanceof Error.ValidationError) return res.status(422).send(e);
     return next(e);
   }
 };
@@ -87,21 +83,25 @@ export const login: RequestHandler = async (req, res, next) => {
 };
 
 export const logout: RequestHandler = async (req, res, next) => {
-  const message = { message: 'Logged out successfully!' };
-
   try {
     const { refreshToken } = req.cookies;
+
     await removeToken(refreshToken);
     res.clearCookie('refreshToken');
 
-    return res.send(message);
+    return res.sendStatus(204);
   } catch (e) {
     return next(e);
   }
 };
 
 export const updateOne: RequestHandler = async (req, res, next) => {
+  const user = (req as IRequestWithUserPayload).user;
   const userId = req.params.id as string;
+
+  if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ error: 'Invalid user id' });
+  if (user.role !== 'admin' && user.id !== userId) return res.status(403).send({ error: 'Forbidden' });
+
   const avatar = req.file ? req.file.filename : undefined;
   const body = req.body as IUpdateUserDto;
   const dto: IUpdateUserDto = {
@@ -118,15 +118,12 @@ export const updateOne: RequestHandler = async (req, res, next) => {
   };
 
   try {
-    const user = await usersService.updateOne(userId, dto);
+    await usersService.updateOne(userId, dto);
 
-    return res.status(200).send({
-      user,
-      message: 'One user has been updated!',
-    });
+    return res.sendStatus(204);
   } catch (e) {
     if (e instanceof ServerError) return res.status(e.statusCode).send(e);
-    if (e instanceof Error.ValidationError) return res.status(400).send(e);
+    if (e instanceof Error.ValidationError) return res.status(422).send(e);
     return next(e);
   }
 };
@@ -162,7 +159,7 @@ export const deleteOne: RequestHandler = async (req, res, next) => {
   const id = req.params.id as string;
   const user = (req as IRequestWithUserPayload).user;
 
-  if (!mongoose.isValidObjectId(id)) throw new BadRequest('Incorrect user id');
+  if (!mongoose.isValidObjectId(id)) return res.status(400).send({ error: 'Invalid user id' });
   if (user.id === id) throw new Forbidden('Users cannot delete their own accounts');
 
   try {

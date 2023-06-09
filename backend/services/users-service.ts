@@ -1,6 +1,6 @@
 import User from '../models/User';
 import { ICreateUserDto, IUpdateUserDto } from '../types';
-import { BadRequest } from '../errors/errors';
+import { NotFound, ValidationFailed } from '../errors/errors';
 import { PipelineStage, Types } from 'mongoose';
 import dayjs from 'dayjs';
 
@@ -89,18 +89,13 @@ export const findById = async (id: string | Types.ObjectId) => {
 };
 
 export const create = async (dto: ICreateUserDto) => {
-  const { email } = dto;
-  const candidate = await User.findOne({ email });
-
-  if (candidate) throw new BadRequest('Email is already taken');
-
   return await User.create(dto);
 };
 
 export const updateOne = async (_id: string, dto: IUpdateUserDto) => {
   const user = await User.findById(_id);
 
-  if (!user) throw new BadRequest('Cannot update non-existent user');
+  if (!user) throw new NotFound('Cannot update non-existent user');
 
   await User.updateOne({ _id }, dto);
 
@@ -111,14 +106,18 @@ export const updateOne = async (_id: string, dto: IUpdateUserDto) => {
 
 export const login = async (email: string, password: string) => {
   const user = await User.findOne({ email });
-  if (!user) throw new BadRequest('Wrong email');
+  if (!user) throw new ValidationFailed('Wrong email or password');
 
   const isPasswordValid = await user.checkPassword(password);
-  if (!isPasswordValid) throw new BadRequest('Wrong password');
+  if (!isPasswordValid) throw new ValidationFailed('Wrong email or password');
 
   return user;
 };
 
 export const deleteOne = async (_id: string) => {
+  const user = await User.findById(_id);
+
+  if (!user) throw new NotFound();
+
   return User.deleteOne({ _id });
 };

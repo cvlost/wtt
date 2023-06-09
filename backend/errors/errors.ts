@@ -25,3 +25,9 @@ export class Forbidden extends ServerError {
     super(403, error);
   }
 }
+
+export class ValidationFailed extends ServerError {
+  constructor(error = 'Validation failed') {
+    super(422, error);
+  }
+}

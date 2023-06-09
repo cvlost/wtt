@@ -29,6 +29,16 @@ const UserSchema = new Schema<IUser, UserModel, UserMethods>(
       type: String,
       required: true,
       unique: true,
+      validate: {
+        validator: async function (this: HydratedDocument<IUser>, email: string): Promise<boolean> {
+          if (!this.isModified('email')) return true;
+          const user: HydratedDocument<IUser> | null = await User.findOne({
+            email,
+          });
+          return !user;
+        },
+        message: 'Email is already taken',
+      },
     },
     phone: {
       type: String,

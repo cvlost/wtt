@@ -13,7 +13,7 @@
     "lint": "eslint \"**/*.ts\" --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "jest",
+    "test:unit": "jest --config jest.config.json --runInBand",
     "prepare": "cd .. && husky install backend/.husky"
   },
   "dependencies": {
