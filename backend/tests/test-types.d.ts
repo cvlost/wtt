@@ -20,3 +20,26 @@ export interface IUserWithActivity extends IUser {
   dayActivity: IActivity;
   overallActivity: IActivity;
 }
+
+export interface IReport {
+  id: string;
+  user: string;
+  startedAt: string;
+  finishedAt: string;
+  title: string;
+  timeSpent: number;
+  description: string;
+}
+
+export interface IDaySummary {
+  dateStr: string;
+  count: number;
+  totalTime: number;
+}
+
+export interface IDayReport {
+  user: IUser & { password: string };
+  dateStr: string;
+  reports: IReport[];
+  totalTime: number;
+}

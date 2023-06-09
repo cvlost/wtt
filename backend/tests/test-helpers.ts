@@ -1,5 +1,7 @@
-import { ICreateUserDto } from '../types';
+import { ICreateReportDto, ICreateUserDto, IUser } from '../types';
 import User from '../models/User';
+import { HydratedDocument } from 'mongoose';
+import Report from '../models/Report';
 
 export const ADMIN_ROLE = 'admin';
 export const USER_ROLE = 'user';
@@ -65,3 +67,30 @@ export const createDefaultUsers = async () => {
 };
 
 export const bearer = (token: string) => `Bearer ${token}`;
+
+export const createReportsFor = async (user: HydratedDocument<IUser>, number: number, date = '2020-05-05') => {
+  const reports: ICreateReportDto[] = [];
+  for (let i = 0; i < number; i++) {
+    reports.push({
+      user: user._id.toString(),
+      description: `Report ${i} description`,
+      dateStr: date,
+      title: `Report ${i}`,
+      startedAt: new Date(`${date}T19:00:00.039Z`).toISOString(),
+      finishedAt: new Date(`${date}T19:05:00.039Z`).toISOString(),
+    });
+  }
+
+  return number === 1 ? Promise.all([Report.create(reports[0])]) : Report.create(reports);
+};
+
+export const newReportDtoFor = (user: HydratedDocument<IUser>, dateStr = '2020-10-10'): ICreateReportDto => {
+  return {
+    user: user._id.toString(),
+    title: 'Some report title',
+    dateStr,
+    description: 'Some description here',
+    startedAt: new Date(`${dateStr}T19:00:00.039Z`).toString(),
+    finishedAt: new Date(`${dateStr}T19:05:00.039Z`).toString(),
+  };
+};

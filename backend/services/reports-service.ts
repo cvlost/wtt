@@ -108,6 +108,7 @@ export const getByDate = async (user: string, dateStr: string) => {
         localField: '_id',
         foreignField: '_id',
         as: 'user',
+        pipeline: [{ $set: { id: '$_id' } }, { $project: { _id: 0, password: 0 } }],
       },
     },
     { $unwind: '$user' },
@@ -150,8 +151,8 @@ export const updateOne = async (_id: string, dto: ICreateReportDto) => {
 
   await Report.updateOne({ _id }, dto);
 
-  report.startedAt = new Date(dto.startedAt);
-  report.finishedAt = new Date(dto.finishedAt);
+  if (report.startedAt) report.startedAt = new Date(dto.startedAt);
+  if (report.finishedAt) report.finishedAt = new Date(dto.finishedAt);
 
   return report.save();
 };
