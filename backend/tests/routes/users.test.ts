@@ -4,9 +4,14 @@ import { describe } from '@jest/globals';
 import * as db from '../db';
 import { randomUUID } from 'crypto';
 import User from '../../models/User';
-import { adminDirectorDto, bearer, createDefaultUsers, newUserCreateDto, userManagerDto } from '../test-helpers';
-import { generateToken, saveToken } from '../../services/jwt-service';
-import ResponseUserDto from '../../dto/ResponseUserDto';
+import {
+  adminDirectorDto,
+  bearer,
+  createDefaultUsers,
+  newUserCreateDto,
+  signTokensFor,
+  userManagerDto,
+} from '../test-helpers';
 import { IUserWithActivity } from '../test-types';
 import mongoose, { Types } from 'mongoose';
 import Token from '../../models/Token';
@@ -59,9 +64,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe('authorized user with role "user" tries to get users list', () => {
       test('it should return statusCode 403 and error message', async () => {
         const user = await User.create(userManagerDto);
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .get(usersRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -76,9 +79,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe('authorized user with role "admin" tries to get users list', () => {
       test('it should return statusCode 200 and list of users', async () => {
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .get(usersRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -129,9 +130,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe('authorized user with role "user" tries to register a new user', () => {
       test('it should return statusCode 403 and error message', async () => {
         const user = await User.create(userManagerDto);
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .post(userRegistrationRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -146,9 +145,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe('authorized user with role "admin" tries to register a new user', () => {
       test('provided correct data, it should return statusCode 201', async () => {
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .post(userRegistrationRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -169,9 +166,7 @@ describe(`usersRouter ${usersRoute}`, () => {
 
       test('provided incorrect data, it should return statusCode 422 and error ValidationError', async () => {
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .post(userRegistrationRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -191,9 +186,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('provided duplicate email, it should return statusCode 422 and error ValidationError', async () => {
         await User.create(newUserCreateDto);
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .post(userRegistrationRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -270,9 +263,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe('authorized user tries to log out', () => {
       test('it should return statusCode 204 and remove refreshToken from DB and cookies', async () => {
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(userLogOutRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -294,9 +285,7 @@ describe(`usersRouter ${usersRoute}`, () => {
     describe(`authorized user tries to refresh tokens`, () => {
       test('it should return statusCode 200, message, user and a new access token', async () => {
         const [admin] = await createDefaultUsers();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .get(userTokenRefreshRoute)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -345,9 +334,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('it should return statusCode 200 and one user object', async () => {
         const [admin, user] = await createDefaultUsers();
         const userId = user._id.toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .get(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -410,9 +397,7 @@ describe(`usersRouter ${usersRoute}`, () => {
         const userId = user._id.toString();
         const newData = { firstName: 'New firstname', lastName: 'New lastName' };
         const oldData = { avatar: user.avatar };
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .patch(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -436,9 +421,7 @@ describe(`usersRouter ${usersRoute}`, () => {
         const userId = admin._id.toString();
         const newData = { firstName: 'New firstname', lastName: 'New lastName' };
         const oldData = { avatar: admin.avatar };
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .patch(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -466,9 +449,7 @@ describe(`usersRouter ${usersRoute}`, () => {
         const userId = user._id.toString();
         const newData = { firstName: 'New firstname', lastName: 'New lastName' };
         const oldData = { avatar: user.avatar };
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .patch(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -491,9 +472,7 @@ describe(`usersRouter ${usersRoute}`, () => {
         const [admin] = await createDefaultUsers();
         const invalidId = randomUUID();
         const newData = { firstName: 'New firstname', lastName: 'New lastName' };
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .patch(`${usersRoute}/${invalidId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -511,9 +490,7 @@ describe(`usersRouter ${usersRoute}`, () => {
         const [admin] = await createDefaultUsers();
         const randomMongoId = new Types.ObjectId().toString();
         const newData = { firstName: 'New firstname', lastName: 'New lastName' };
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .patch(`${usersRoute}/${randomMongoId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -561,9 +538,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('it should return statusCode 403 and error message', async () => {
         const user = (await createDefaultUsers())[1];
         const userId = user._id.toString();
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .delete(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -579,9 +554,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('it should return statusCode 204', async () => {
         const [admin, user] = await createDefaultUsers();
         const userId = user._id.toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(`${usersRoute}/${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -593,9 +566,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('provided invalid mongodb id, it should return statusCode 400 and error message', async () => {
         const [admin] = await createDefaultUsers();
         const invalidMongoId = randomUUID();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(`${usersRoute}/${invalidMongoId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -609,9 +580,7 @@ describe(`usersRouter ${usersRoute}`, () => {
       test('provided non-existent user id, it should return statusCode 404 and error message', async () => {
         const [admin] = await createDefaultUsers();
         const randomMongoId = new Types.ObjectId().toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(`${usersRoute}/${randomMongoId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])

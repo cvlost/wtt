@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { ICreateReportDto } from '../types';
 import User from '../models/User';
 import { BadRequest } from '../errors/errors';
+import dayjs, { Dayjs } from 'dayjs';
 
 export const getAll = async (user?: string) => {
   return Report.aggregate([
@@ -163,4 +164,25 @@ export const deleteOne = async (_id: string) => {
 
 export const deleteMany = async (user: string) => {
   return Report.deleteMany({ user });
+};
+
+export const getAllowedDates = () => {
+  const today = dayjs();
+  const dates: Dayjs[] = [today];
+
+  for (let i = 0; i < 2; i++) {
+    let prevDay = dates[i].subtract(1, 'day');
+    while (prevDay.day() === 0 || prevDay.day() === 6) {
+      prevDay = prevDay.subtract(1, 'day');
+    }
+    dates.push(prevDay);
+  }
+
+  if (today.day() === 0 || today.day() === 6) dates.shift();
+
+  return dates.map((date) => date.format('YYYY[-]MM[-]DD'));
+};
+
+export const isAllowedDate = (dateStr: string) => {
+  return getAllowedDates().includes(dateStr);
 };

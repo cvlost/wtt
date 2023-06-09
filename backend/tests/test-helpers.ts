@@ -1,7 +1,9 @@
 import { ICreateReportDto, ICreateUserDto, IUser } from '../types';
-import User from '../models/User';
+import User, { UserDocument } from '../models/User';
 import { HydratedDocument } from 'mongoose';
 import Report from '../models/Report';
+import ResponseUserDto from '../dto/ResponseUserDto';
+import { generateToken, saveToken } from '../services/jwt-service';
 
 export const ADMIN_ROLE = 'admin';
 export const USER_ROLE = 'user';
@@ -9,6 +11,8 @@ export const USER_ROLE = 'user';
 export const DIRECTOR_POSITION = 'director';
 export const MANAGER_POSITION = 'manager';
 export const EMPLOYEE_POSITION = 'employee';
+
+export const DATE_STR_FORMAT = 'YYYY[-]MM[-]DD';
 
 export const adminDirectorDto: ICreateUserDto = {
   firstName: 'John',
@@ -93,4 +97,12 @@ export const newReportDtoFor = (user: HydratedDocument<IUser>, dateStr = '2020-1
     startedAt: new Date(`${dateStr}T19:00:00.039Z`).toString(),
     finishedAt: new Date(`${dateStr}T19:05:00.039Z`).toString(),
   };
+};
+
+export const signTokensFor = async (user: UserDocument) => {
+  const userDto = new ResponseUserDto(user);
+  const tokens = generateToken({ ...userDto });
+  await saveToken(user._id, tokens.refreshToken);
+
+  return tokens;
 };

@@ -38,6 +38,10 @@ export const createOne: RequestHandler = async (req, res, next) => {
   if (reqUser.id !== user) return res.status(403).send({ error: 'Forbidden' });
 
   try {
+    const isAllowed = reportsService.isAllowedDate(dateStr);
+
+    if (!isAllowed) return res.status(403).send({ error: `Forbidden. Report is not allowed to edit` });
+
     await reportsService.createOne(dto);
     return res.sendStatus(201);
   } catch (e) {
@@ -67,6 +71,10 @@ export const updateOne: RequestHandler = async (req, res, next) => {
   if (reqUser.id !== user) return res.status(403).send({ error: 'Forbidden' });
 
   try {
+    const isAllowed = reportsService.isAllowedDate(dateStr);
+
+    if (!isAllowed) return res.status(403).send({ error: `Forbidden. Report is not allowed to edit` });
+
     await reportsService.updateOne(id, dto);
     return res.sendStatus(204);
   } catch (e) {
@@ -85,6 +93,9 @@ export const deleteOne: RequestHandler = async (req, res, next) => {
 
     if (!report) return res.status(404).send({ error: 'Not Found' });
     if (report.user.toString() !== user.id) return res.status(403).send({ error: 'Forbidden' });
+
+    const isAllowed = reportsService.isAllowedDate(report.dateStr);
+    if (!isAllowed) return res.status(403).send({ error: `Forbidden. Report is not allowed to delete` });
 
     await reportsService.deleteOne(id);
     return res.sendStatus(204);

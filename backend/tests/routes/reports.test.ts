@@ -3,11 +3,18 @@ import app from '../../app/app';
 import { describe } from '@jest/globals';
 import * as db from '../db';
 import { randomUUID } from 'crypto';
-import { bearer, createDefaultUsers, createReportsFor, newReportDtoFor } from '../test-helpers';
-import { generateToken, saveToken } from '../../services/jwt-service';
-import ResponseUserDto from '../../dto/ResponseUserDto';
+import {
+  bearer,
+  createDefaultUsers,
+  createReportsFor,
+  DATE_STR_FORMAT,
+  newReportDtoFor,
+  signTokensFor,
+} from '../test-helpers';
 import { IDayReport, IDaySummary, IReport } from '../test-types';
 import Report from '../../models/Report';
+import dayjs from 'dayjs';
+import * as reportsService from '../../services/reports-service';
 
 const request = supertest(app);
 
@@ -60,9 +67,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         await createReportsFor(user, 1, '2020-01-02');
         await createReportsFor(user, 1, '2020-01-03');
         await createReportsFor(user, 1, '2020-01-04');
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .get(`${reportsRoute}?user=${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -82,9 +87,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         const adminId = admin._id.toString();
         await createReportsFor(admin, 1, '2000-10-10');
         await createReportsFor(user, 1, '2020-01-01');
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .get(`${reportsRoute}?user=${adminId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -104,9 +107,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         await createReportsFor(user, 1, '2020-01-01');
         await createReportsFor(user, 1, '2020-01-02');
         await createReportsFor(user, 1, '2020-01-03');
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .get(`${reportsRoute}?user=${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -156,9 +157,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         const userId = user._id.toString();
         await createReportsFor(admin, 5, date);
         await createReportsFor(user, 7, date);
-        const userDto = new ResponseUserDto(user);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(user._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(user);
         const res = await request
           .get(`${reportsRoute}/${date}?user=${userId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -212,9 +211,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         const [admin] = await createDefaultUsers();
         const [report] = await createReportsFor(admin, 1);
         const reportId = report._id.toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .get(`${singleReportRoute}/${reportId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -258,12 +255,11 @@ describe(`reportsRouter ${reportsRoute}`, () => {
     });
 
     describe('authorized user tries to create a new report', () => {
-      test('provided own id, it should return statusCode 201', async () => {
+      test('provided own id and appropriate date, it should return statusCode 201', async () => {
         const [admin] = await createDefaultUsers();
-        const dto = newReportDtoFor(admin);
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const [allowedDate] = reportsService.getAllowedDates();
+        const dto = newReportDtoFor(admin, allowedDate);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .post(reportsRoute)
           .send(dto)
@@ -273,12 +269,43 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         expect(res.statusCode).toBe(201);
       });
 
-      test('provided any other user id, it should return statusCode 403 and error message', async () => {
+      test('provided own id and past forbidden date, it should return statusCode 403 and error message', async () => {
+        const [admin] = await createDefaultUsers();
+        const pastDate = dayjs().subtract(3, 'days').format(DATE_STR_FORMAT);
+        const dto = newReportDtoFor(admin, pastDate);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
+        const res = await request
+          .post(reportsRoute)
+          .send(dto)
+          .set('Cookie', [`refreshToken=${refreshToken}`])
+          .set('Authorization', bearer(accessToken));
+        const errorMessage = res.body.error;
+
+        expect(res.statusCode).toBe(403);
+        expect(errorMessage).toBe('Forbidden. Report is not allowed to edit');
+      });
+
+      test('provided own id and future forbidden date, it should return statusCode 403 and error message', async () => {
+        const [admin] = await createDefaultUsers();
+        const futureDate = dayjs().add(1, 'days').format(DATE_STR_FORMAT);
+        const dto = newReportDtoFor(admin, futureDate);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
+        const res = await request
+          .post(reportsRoute)
+          .send(dto)
+          .set('Cookie', [`refreshToken=${refreshToken}`])
+          .set('Authorization', bearer(accessToken));
+        const errorMessage = res.body.error;
+
+        expect(res.statusCode).toBe(403);
+        expect(errorMessage).toBe('Forbidden. Report is not allowed to edit');
+      });
+
+      test('provided any other user id and appropriate date, it should return statusCode 403 and error message', async () => {
         const [admin, user] = await createDefaultUsers();
-        const dto = newReportDtoFor(user);
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const [allowedDate] = reportsService.getAllowedDates();
+        const dto = newReportDtoFor(user, allowedDate);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .post(reportsRoute)
           .send(dto)
@@ -334,9 +361,7 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         const userId = user._id.toString();
         const userReportId = report._id.toString();
         const newData = { user: userId, title: 'Some updated title' };
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .patch(`${reportsRoute}/${userReportId}`)
           .send(newData)
@@ -386,13 +411,12 @@ describe(`reportsRouter ${reportsRoute}`, () => {
     });
 
     describe('authorized user tries to delete one report', () => {
-      test('provided own id, it should return statusCode 204', async () => {
+      test('provided own id and appropriate date, it should return statusCode 204', async () => {
         const [admin] = await createDefaultUsers();
-        const [report] = await createReportsFor(admin, 1);
+        const [allowedDate] = reportsService.getAllowedDates();
+        const [report] = await createReportsFor(admin, 1, allowedDate);
         const reportId = report._id.toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(`${reportsRoute}/${reportId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])
@@ -401,13 +425,28 @@ describe(`reportsRouter ${reportsRoute}`, () => {
         expect(res.statusCode).toBe(204);
       });
 
+      test('provided own id and past forbidden date, it should return statusCode 403 and error message', async () => {
+        const [admin] = await createDefaultUsers();
+        const forbiddenDate = dayjs().subtract(3, 'days').format(DATE_STR_FORMAT);
+        const [report] = await createReportsFor(admin, 1, forbiddenDate);
+        const reportId = report._id.toString();
+        const { accessToken, refreshToken } = await signTokensFor(admin);
+        const res = await request
+          .delete(`${reportsRoute}/${reportId}`)
+          .set('Cookie', [`refreshToken=${refreshToken}`])
+          .set('Authorization', bearer(accessToken));
+        const errorMessage = res.body.error;
+
+        expect(res.statusCode).toBe(403);
+        expect(errorMessage).toBe('Forbidden. Report is not allowed to delete');
+      });
+
       test('provided any other user id, it should return statusCode 403 and error message', async () => {
         const [admin, user] = await createDefaultUsers();
-        const [report] = await createReportsFor(user, 1);
+        const [allowedDate] = reportsService.getAllowedDates();
+        const [report] = await createReportsFor(user, 1, allowedDate);
         const userReportId = report._id.toString();
-        const userDto = new ResponseUserDto(admin);
-        const { accessToken, refreshToken } = generateToken({ ...userDto });
-        await saveToken(admin._id, refreshToken);
+        const { accessToken, refreshToken } = await signTokensFor(admin);
         const res = await request
           .delete(`${reportsRoute}/${userReportId}`)
           .set('Cookie', [`refreshToken=${refreshToken}`])

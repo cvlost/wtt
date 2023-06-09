@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
+import config from '../config';
 
 export const connect = async () => {
-  const uri = 'mongodb://localhost/work-time-tracker-test';
-  mongoose.set('strictQuery', false);
+  const uri = config.db;
   await mongoose.connect(uri);
 };
 
