@@ -26,8 +26,7 @@ import {
 import { getOneUser, register, updateOneUser } from './usersThunks';
 import { IRegisterMutation } from '../../types';
 import FileInput from '../../components/FileInput/FileInput';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import EmailIcon from '@mui/icons-material/Email';
@@ -245,7 +244,7 @@ const Register: React.FC<Props> = ({ edit = false }) => {
               <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
                 <CakeIcon sx={{ mr: 1 }} />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
+                  <MobileDatePicker
                     label="Birthday"
                     value={state.birthDay ? dayjs(state.birthDay) : null}
                     slotProps={{
@@ -296,7 +295,7 @@ const Register: React.FC<Props> = ({ edit = false }) => {
                   <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
                     <WorkHistoryIcon sx={{ mr: 1 }} />
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
+                      <MobileDatePicker
                         label="Employed at"
                         value={state.employed ? dayjs(state.employed) : null}
                         slotProps={{

@@ -24,6 +24,14 @@ const UserSchema = new Schema<IUser, UserModel, UserMethods>(
     password: {
       type: String,
       required: true,
+      validate: {
+        validator: async function (this: HydratedDocument<IUser>, password: string): Promise<boolean> {
+          if (!this.isModified('email')) return true;
+
+          return password.length > 4;
+        },
+        message: 'Password is too short',
+      },
     },
     email: {
       type: String,
