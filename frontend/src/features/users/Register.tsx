@@ -20,6 +20,7 @@ import {
   selectOneUserLoading,
   selectRegisterError,
   selectRegisterLoading,
+  selectUser,
   selectUserAuthorized,
 } from './usersSlice';
 import { getOneUser, register, updateOneUser } from './usersThunks';
@@ -61,6 +62,7 @@ const initialFields: IRegisterMutation = {
 };
 
 const Register: React.FC<Props> = ({ edit = false }) => {
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const error = useAppSelector(selectRegisterError);
   const authorized = useAppSelector(selectUserAuthorized);
@@ -281,60 +283,73 @@ const Register: React.FC<Props> = ({ edit = false }) => {
                   helperText={getFieldError('phone')}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Divider />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography fontWeight="bold" fontSize="0.8em">
-                  Company
-                </Typography>
-              </Grid>
-              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
-                <WorkHistoryIcon sx={{ mr: 1 }} />
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Employed at"
-                    value={state.employed ? dayjs(state.employed) : null}
-                    slotProps={{
-                      textField: {
-                        required: true,
-                      },
-                    }}
-                    onChange={(newValue) => {
-                      const employed = newValue ? newValue.toISOString() : null;
-                      setState((prev) => ({ ...prev, employed }));
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
-                <BadgeIcon sx={{ mr: 1 }} />
-                <TextField
-                  select
-                  required
-                  value={state.position}
-                  name="position"
-                  onChange={inputChangeHandler}
-                  label="Position"
-                >
-                  <MenuItem value="" disabled>
-                    Select position
-                  </MenuItem>
-                  <MenuItem value="director">Director</MenuItem>
-                  <MenuItem value="manager">Manager</MenuItem>
-                  <MenuItem value="employee">Employee</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
-                <AdminPanelSettingsIcon sx={{ mr: 1 }} />
-                <TextField select required value={state.role} name="role" onChange={inputChangeHandler} label="Role">
-                  <MenuItem value="" disabled>
-                    Select role
-                  </MenuItem>
-                  <MenuItem value="admin">Administrator</MenuItem>
-                  <MenuItem value="user">User</MenuItem>
-                </TextField>
-              </Grid>
+              {user?.role === 'admin' && (
+                <>
+                  <Grid item xs={12}>
+                    <Divider />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography fontWeight="bold" fontSize="0.8em">
+                      Company
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                    <WorkHistoryIcon sx={{ mr: 1 }} />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Employed at"
+                        value={state.employed ? dayjs(state.employed) : null}
+                        slotProps={{
+                          textField: {
+                            required: true,
+                          },
+                        }}
+                        onChange={(newValue) => {
+                          const employed = newValue ? newValue.toISOString() : null;
+                          setState((prev) => ({ ...prev, employed }));
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                    <BadgeIcon sx={{ mr: 1 }} />
+                    <TextField
+                      select
+                      required
+                      value={state.position}
+                      name="position"
+                      onChange={inputChangeHandler}
+                      label="Position"
+                    >
+                      <MenuItem value="" disabled>
+                        Select position
+                      </MenuItem>
+                      <MenuItem value="director">Director</MenuItem>
+                      <MenuItem value="manager">Manager</MenuItem>
+                      <MenuItem value="employee">Employee</MenuItem>
+                    </TextField>
+                  </Grid>
+                  {!edit && (
+                    <Grid item xs={12} container alignItems="center" flexWrap="nowrap">
+                      <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                      <TextField
+                        select
+                        required
+                        value={state.role}
+                        name="role"
+                        onChange={inputChangeHandler}
+                        label="Role"
+                      >
+                        <MenuItem value="" disabled>
+                          Select role
+                        </MenuItem>
+                        <MenuItem value="admin">Administrator</MenuItem>
+                        <MenuItem value="user">User</MenuItem>
+                      </TextField>
+                    </Grid>
+                  )}
+                </>
+              )}
             </Grid>
             <Button
               disabled={registerLoading || oneUserLoading}
